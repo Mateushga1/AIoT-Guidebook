@@ -1,0 +1,4 @@
+^BUILD$
+^.mbed$
+^BSP_B-L475E-IOT01$
+^mbed-os$

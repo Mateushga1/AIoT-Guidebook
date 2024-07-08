@@ -1,0 +1,6 @@
+data/mbed.bld.i
+data/mbed-dev.lib.i
+data/main.cpp.i
+data/BSP_B-L475E-IOT01.lib.i
+data/mbed-os.lib.i
+data/BSP_DISCO_L475VG_IOT01.lib.i

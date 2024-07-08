@@ -1,0 +1,11 @@
+C:/Users/smartIoT/STM32Cube/Repository/STM32Cube_FW_U5_V1.5.0/Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_ll_gpio.h:283:22:LL_GPIO_SetPinMode	3
+C:/Users/smartIoT/STM32Cube/Repository/STM32Cube_FW_U5_V1.5.0/Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_ll_gpio.h:353:22:LL_GPIO_SetPinOutputType	1
+C:/Users/smartIoT/STM32Cube/Repository/STM32Cube_FW_U5_V1.5.0/Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_ll_gpio.h:424:22:LL_GPIO_SetPinSpeed	3
+C:/Users/smartIoT/STM32Cube/Repository/STM32Cube_FW_U5_V1.5.0/Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_ll_gpio.h:496:22:LL_GPIO_SetPinPull	3
+C:/Users/smartIoT/STM32Cube/Repository/STM32Cube_FW_U5_V1.5.0/Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_ll_gpio.h:570:22:LL_GPIO_SetAFPin_0_7	3
+C:/Users/smartIoT/STM32Cube/Repository/STM32Cube_FW_U5_V1.5.0/Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_ll_gpio.h:647:22:LL_GPIO_SetAFPin_8_15	3
+C:/Users/smartIoT/STM32Cube/Repository/STM32Cube_FW_U5_V1.5.0/Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_ll_bus.h:1054:22:LL_AHB2_GRP1_ForceReset	1
+C:/Users/smartIoT/STM32Cube/Repository/STM32Cube_FW_U5_V1.5.0/Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_ll_bus.h:1116:22:LL_AHB2_GRP1_ReleaseReset	1
+C:/Users/smartIoT/STM32Cube/Repository/STM32Cube_FW_U5_V1.5.0/Drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_ll_gpio.c:104:13:LL_GPIO_DeInit	10
+C:/Users/smartIoT/STM32Cube/Repository/STM32Cube_FW_U5_V1.5.0/Drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_ll_gpio.c:193:13:LL_GPIO_Init	9
+C:/Users/smartIoT/STM32Cube/Repository/STM32Cube_FW_U5_V1.5.0/Drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_ll_gpio.c:265:6:LL_GPIO_StructInit	1
