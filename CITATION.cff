@@ -1,0 +1,11 @@
+cff-version: 1.0.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: Galvão
+  given-names: Mateus
+orcid: https://orcid.org/0009-0006-1389-3794
+doi: 10.5281/zenodo.12700233
+title: AIoT-Guidebook
+version: v1.0.0
+date-released: 2024-07-09
+url: https://doi.org/10.5281/zenodo.12700233
