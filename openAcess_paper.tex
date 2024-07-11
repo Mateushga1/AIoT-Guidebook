@@ -1,0 +1,3856 @@
+\documentclass[10pt,a4paper,onecolumn]{article}
+\usepackage{marginnote}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{authblk,etoolbox}
+\usepackage{titlesec}
+\usepackage{calc}
+\usepackage{tikz}
+\usepackage{hyperref}
+\hypersetup{colorlinks,breaklinks=true,
+            urlcolor=[rgb]{0.0, 0.5, 1.0},
+            linkcolor=[rgb]{0.0, 0.5, 1.0}}
+\usepackage{caption}
+\usepackage{subfigure}
+\usepackage{tcolorbox}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{seqsplit}
+\usepackage{xstring}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage{fontawesome}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+%\usepackage{float}
+%\let\origfigure\figure
+%\let\endorigfigure\endfigure
+%\renewenvironment{figure}[1][2] {
+%    \expandafter\origfigure\expandafter[H]
+%} {
+%    \endorigfigure
+%}
+
+
+\usepackage{fixltx2e} % provides \textsubscript
+\usepackage[
+  backend=biber,
+%  style=alphabetic,
+%  citestyle=numeric
+]{biblatex}
+\bibliography{paper.bib}
+
+\lstdefinestyle{CStyle}{
+  language=C++,                    
+  frame=single,                    
+  numbers=left,                    
+  numberstyle=\tiny\color{gray},   
+  keywordstyle=\color{blue},       
+  commentstyle=\color{green},      
+  stringstyle=\color{red},         
+  basicstyle=\ttfamily\footnotesize, 
+  breaklines=true,                 
+  backgroundcolor=\color{white},   
+  showspaces=false,                
+  showstringspaces=false,          
+  rulecolor=\color{black}          
+}
+
+\lstdefinestyle{BashStyle}{
+  language=bash,                   
+  frame=single,                    
+  numbers=left,                    
+  numberstyle=\tiny\color{gray},   
+  keywordstyle=\color{blue},       
+  commentstyle=\color{green},      
+  stringstyle=\color{red},         
+  basicstyle=\ttfamily\footnotesize, 
+  breaklines=true,                 
+  backgroundcolor=\color{white},   
+  showspaces=false,                
+  showstringspaces=false,          
+  rulecolor=\color{black}          
+}
+
+\lstdefinestyle{JsonStyle}{
+  frame=single,                    
+  numbers=left,                    
+  numberstyle=\tiny\color{gray},   
+  keywordstyle=\color{blue},       
+  commentstyle=\color{green},      
+  stringstyle=\color{red},         
+  basicstyle=\ttfamily\footnotesize, 
+  breaklines=true,                 
+  backgroundcolor=\color{white},   
+  showspaces=false,                
+  showstringspaces=false,          
+  rulecolor=\color{black},         
+  literate=
+   *{0}{{{\color{red}0}}}{1}
+    {1}{{{\color{red}1}}}{1}
+    {2}{{{\color{red}2}}}{1}
+    {3}{{{\color{red}3}}}{1}
+    {4}{{{\color{red}4}}}{1}
+    {5}{{{\color{red}5}}}{1}
+    {6}{{{\color{red}6}}}{1}
+    {7}{{{\color{red}7}}}{1}
+    {8}{{{\color{red}8}}}{1}
+    {9}{{{\color{red}9}}}{1}
+    {:}{{{\color{blue}:}}}{1}
+    {,}{{{\color{blue},}}}{1}
+    {\{}{{{\color{black}{\{}}}}{1}
+    {\}}{{{\color{black}{\}}}}}{1}
+    {[}{{{\color{black}{[}}}}{1}
+    {]}{{{\color{black}{]}}}}{1}
+}
+% --- Splitting \texttt --------------------------------------------------
+
+\let\textttOrig=\texttt
+\def\texttt#1{\expandafter\textttOrig{\seqsplit{#1}}}
+\renewcommand{\seqinsert}{\ifmmode
+  \allowbreak
+  \else\penalty6000\hspace{0pt plus 0.02em}\fi}
+
+
+% --- Pandoc does not distinguish between links like [foo](bar) and
+% --- [foo](foo) -- a simplistic Markdown model.  However, this is
+% --- wrong:  in links like [foo](foo) the text is the url, and must
+% --- be split correspondingly.
+% --- Here we detect links \href{foo}{foo}, and also links starting
+% --- with https://doi.org, and use path-like splitting (but not
+% --- escaping!) with these links.
+% --- Another vile thing pandoc does is the different escaping of
+% --- foo and bar.  This may confound our detection.
+% --- This problem we do not try to solve at present, with the exception
+% --- of doi-like urls, which we detect correctly.
+
+
+\makeatletter
+\let\href@Orig=\href
+\def\href@Urllike#1#2{\href@Orig{#1}{\begingroup
+    \def\Url@String{#2}\Url@FormatString
+    \endgroup}}
+\def\href@Notdoi#1#2{\def\tempa{#1}\def\tempb{#2}%
+  \ifx\tempa\tempb\relax\href@Urllike{#1}{#2}\else
+  \href@Orig{#1}{#2}\fi}
+\def\href#1#2{%
+  \IfBeginWith{#1}{https://doi.org}%
+  {\href@Urllike{#1}{#2}}{\href@Notdoi{#1}{#2}}}
+\makeatother
+
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[3] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1 \everypar{\setlength{\hangindent}{\cslhangindent}}\ignorespaces\fi
+  % set entry spacing
+  \ifnum #2 > 0
+  \setlength{\parskip}{#2\baselineskip}
+  \fi
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+% --- Page layout -------------------------------------------------------------
+\usepackage[top=3.5cm, bottom=3cm, right=1.5cm, left=1.0cm,
+            headheight=2.2cm, reversemp, includemp, marginparwidth=4.5cm]{geometry}
+
+% --- Default font ------------------------------------------------------------
+\renewcommand\familydefault{\sfdefault}
+
+% --- Style -------------------------------------------------------------------
+\renewcommand{\bibfont}{\small \sffamily}
+\renewcommand{\captionfont}{\small\sffamily}
+\renewcommand{\captionlabelfont}{\bfseries}
+
+% --- Section/SubSection/SubSubSection ----------------------------------------
+\titleformat{\section}
+  {\normalfont\sffamily\Large\bfseries}
+  {}{0pt}{}
+\titleformat{\subsection}
+  {\normalfont\sffamily\large\bfseries}
+  {}{0pt}{}
+\titleformat{\subsubsection}
+  {\normalfont\sffamily\bfseries}
+  {}{0pt}{}
+\titleformat*{\paragraph}
+  {\sffamily\normalsize}
+
+
+% --- Header / Footer ---------------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+%\renewcommand{\headrulewidth}{0.50pt}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead[L]{\hspace{-0.75cm}\includegraphics[width=5.5cm]{./images/logo.png}}
+\fancyhead[C]{}
+\fancyhead[R]{}
+\renewcommand{\footrulewidth}{0.25pt}
+
+\fancyfoot[L]{\parbox[t]{0.98\headwidth}{\footnotesize{\sffamily Mateus H. Galvão and Pietro M. Ferreira,, (2024). AIoT Guidebook: Comprehensive tutorial for developing IoT and AI applications on STM32 microcontrollers. \textit{Open Source Software}. \url{https://doi.org/10.5281/zenodo.12700232}}}}
+
+
+\fancyfoot[R]{\sffamily \thepage}
+\makeatletter
+\let\ps@plain\ps@fancy
+\fancyheadoffset[L]{4.5cm}
+\fancyfootoffset[L]{4.5cm}
+
+% --- Macros ---------
+
+\definecolor{linky}{rgb}{0.0, 0.5, 1.0}
+
+\newtcolorbox{repobox}
+   {colback=red, colframe=red!75!black,
+     boxrule=0.5pt, arc=2pt, left=6pt, right=6pt, top=3pt, bottom=3pt}
+
+\newcommand{\ExternalLink}{%
+   \tikz[x=1.2ex, y=1.2ex, baseline=-0.05ex]{%
+       \begin{scope}[x=1ex, y=1ex]
+           \clip (-0.1,-0.1)
+               --++ (-0, 1.2)
+               --++ (0.6, 0)
+               --++ (0, -0.6)
+               --++ (0.6, 0)
+               --++ (0, -1);
+           \path[draw,
+               line width = 0.5,
+               rounded corners=0.5]
+               (0,0) rectangle (1,1);
+       \end{scope}
+       \path[draw, line width = 0.5] (0.5, 0.5)
+           -- (1, 1);
+       \path[draw, line width = 0.5] (0.6, 1)
+           -- (1, 1) -- (1, 0.6);
+       }
+   }
+
+% --- Title / Authors ---------------------------------------------------------
+% patch \maketitle so that it doesn't center
+\patchcmd{\@maketitle}{center}{flushleft}{}{}
+\patchcmd{\@maketitle}{center}{flushleft}{}{}
+% patch \maketitle so that the font size for the title is normal
+\patchcmd{\@maketitle}{\LARGE}{\LARGE\sffamily}{}{}
+% patch the patch by authblk so that the author block is flush left
+\def\maketitle{{%
+  \renewenvironment{tabular}[2][]
+    {\begin{flushleft}}
+    {\end{flushleft}}
+  \AB@maketitle}}
+\makeatletter
+\renewcommand\AB@affilsepx{ \protect\Affilfont}
+%\renewcommand\AB@affilnote[1]{{\bfseries #1}\hspace{2pt}}
+\renewcommand\AB@affilnote[1]{{\bfseries #1}\hspace{3pt}}
+\renewcommand{\affil}[2][]%
+   {\newaffiltrue\let\AB@blk@and\AB@pand
+      \if\relax#1\relax\def\AB@note{\AB@thenote}\else\def\AB@note{#1}%
+        \setcounter{Maxaffil}{0}\fi
+        \begingroup
+        \let\href=\href@Orig
+        \let\texttt=\textttOrig
+        \let\protect\@unexpandable@protect
+        \def\thanks{\protect\thanks}\def\footnote{\protect\footnote}%
+        \@temptokena=\expandafter{\AB@authors}%
+        {\def\\{\protect\\\protect\Affilfont}\xdef\AB@temp{#2}}%
+         \xdef\AB@authors{\the\@temptokena\AB@las\AB@au@str
+         \protect\\[\affilsep]\protect\Affilfont\AB@temp}%
+         \gdef\AB@las{}\gdef\AB@au@str{}%
+        {\def\\{, \ignorespaces}\xdef\AB@temp{#2}}%
+        \@temptokena=\expandafter{\AB@affillist}%
+        \xdef\AB@affillist{\the\@temptokena \AB@affilsep
+          \AB@affilnote{\AB@note}\protect\Affilfont\AB@temp}%
+      \endgroup
+       \let\AB@affilsep\AB@affilsepx
+}
+\makeatother
+\renewcommand\Authfont{\sffamily\bfseries}
+\renewcommand\Affilfont{\sffamily\small\mdseries}
+\setlength{\affilsep}{1em}
+
+
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+    \usepackage{fontspec}
+
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={IC-Layout Render: Image rendering tool for integrated circuit layout in Python},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+
+% --- We redefined \texttt, but in sections and captions we want the
+% --- old definition
+\let\addcontentslineOrig=\addcontentsline
+\def\addcontentsline#1#2#3{\bgroup
+  \let\texttt=\textttOrig\addcontentslineOrig{#1}{#2}{#3}\egroup}
+\let\markbothOrig\markboth
+\def\markboth#1#2{\bgroup
+  \let\texttt=\textttOrig\markbothOrig{#1}{#2}\egroup}
+\let\markrightOrig\markright
+\def\markright#1{\bgroup
+  \let\texttt=\textttOrig\markrightOrig{#1}\egroup}
+
+
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale img if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+\title{AIoT Guidebook: Comprehensive tutorial for developing IoT and AI applications on STM32 microcontrollers}
+
+        \author[1, 2]{Mateus H. Galvão}
+         \author[1, 2]{Pietro M. Ferreira}
+    
+      \affil[1]{Université Paris-Saclay, CentraleSupélec, CNRS, Lab. de
+Génie Électrique et Électronique de Paris,91192,Gif-sur-Yvette,France}
+
+      \affil[2]{Sorbonne Université, CNRS, Lab. de Génie Électrique et
+Électronique de Paris, 75252, Paris, France}
+  \date{\vspace{-7ex}}
+
+\begin{document}
+\maketitle
+
+\marginpar{
+
+  \begin{flushleft}
+  %\hrule
+  \sffamily\small
+
+  {\bfseries DOI:} \href{https://doi.org/10.5281/zenodo.12700232}{\color{linky}{10.5281/zenodo.12700233}}
+
+  \vspace{2mm}
+
+  {\bfseries Software}
+  \begin{itemize}
+    \setlength\itemsep{0em}
+    \item \href{https://github.com/Mateushga1/AIoT-Guidebook/tree/v1.0.0}{\color{linky}{Release}} \ExternalLink
+    \item \href{https://github.com/Mateushga1/AIoT-Guidebook}{\color{linky}{Repository}} \ExternalLink
+    %\item \href{DOI unavailable}{\color{linky}{Archive}} \ExternalLink
+  \end{itemize}
+
+  \vspace{2mm}
+
+  \par\noindent\hrulefill\par
+
+  \vspace{2mm}
+
+%  {\bfseries Editor:} \href{https://example.com}{Pending Editor} \ExternalLink \\
+%  \vspace{1mm}
+%    {\bfseries Reviewers:}
+%  \begin{itemize}
+%  \setlength\itemsep{0em}
+%    \item \href{https://github.com/Pending Reviewers}{@Pending Reviewers}
+%    \end{itemize}
+%    \vspace{2mm}
+
+  {\bfseries Submitted:} N/A\\
+  {\bfseries Published:} N/A
+
+  \vspace{2mm}
+  {\bfseries License}\\
+  Authors of papers retain copyright and release the work under a Creative Commons Attribution 4.0 International License (\href{http://creativecommons.org/licenses/by/4.0/}{\color{linky}{CC BY 4.0}}).
+
+    \vspace{4mm}
+  \end{flushleft}
+}
+
+\hypertarget{chapter-1-overview-and-objectives}{%
+\section{Chapter 1: Overview and
+Objectives}\label{chapter-1-overview-and-objectives}}
+
+\hypertarget{learning-goals}{%
+\subsection{1. Learning Goals}\label{learning-goals}}
+
+The goal of this tutorial is to design various Internet of Things (IoT) applications through experimentation, creation, and validation of functional projects. By combining technological insights with practical, hands-on project-based learning, you will gain a comprehensive understanding of the components that make up a connected system, ranging from sensor selection to data processing in cloud and Artificial Intelligence (AI).
+
+We will utilize different electronic development boards along with two development environments: \textit{MBed OS} and \textit{STM32CubeIDE}. Each section of this tutorial will be dedicated to teaching essential concepts of both development environments, IoT implementations, ThingSpeak cloud, and embedded AI. These tutorials are designed to inspire you to implement your own projects.
+
+This material covers several key areas. First, it focuses on electronic design and integration, involving the selection and integration of sensors and other electronic components. Next, it addresses processing and communication, which includes programming in C, processing on the embedded board, and implementing communication protocols. The tutorial also delves into the implementation of AI, where you will learn to use pre-trained AI models in your embedded projects. Finally, it also explores data processing and application on a server via ThingSpeak, covering data handling and visualization on a cloud-based server.
+
+The project involves multiple steps, including specifying a connected object and a target application by describing the needs and functionalities, assembling and integrating different elements to create the object, focusing on hardware design involving sensors and the processor board, integrating the hardware with AI to determine if your model can be implemented into your project and understanding its limitations, and developing the application and its cloud environment with a focus on software design involving data processing and visualization.
+
+\hypertarget{the-hardware-and-software}{%
+\subsection{2. The Hardware and
+Software}\label{the-hardware-and-software}}
+
+\hypertarget{b-l475e-iot01a-development-board}{%
+\subsubsection{2.1 B-L475E-IOT01A Development
+Board}\label{b-l475e-iot01a-development-board}}
+
+For the first part of this material, we will use the board referenced a \textit{B-L475E-IOT01A}. It (Fig. \ref{fig:B-L475E-IOT01A-Board}) features an \textit{STM32L475VGT6} microcontroller, memory, sensors, radio frequency modules allowing for wireless connections, two USB connections, a connector for Arduino extensions, and two microphones. Thus, it constitutes a complete system for developing a connected object. Additionally, it is possible to add external sensors or radio frequency modules to enhance its functionalities. Its dimensions are 90mm x 60mm. It is assembled using SMD components placed on both sides (Fig. \ref{fig:B-L475E-IOT01A-Top} and \ref{fig:B-L475E-IOT01A-Bottom}). Its functional description is illustrated in Fig. \ref{fig:B-L475E-IOT01A-Pinout} with all the peripherals.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/board.png}
+  \caption{B-L475E-IOT01A Discovery Board.}
+  \label{fig:B-L475E-IOT01A-Board}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \subfigure[\label{fig:B-L475E-IOT01A-Top}]{\includegraphics[width=0.49\textwidth]{images/board_top.png}}
+  \hfill
+  \subfigure[\label{fig:B-L475E-IOT01A-Bottom}]{\includegraphics[width=0.49\textwidth]{images/board_bottom.png}}
+  \caption{B-L475E-IOT01A top (a) and bottom (b) views.}
+\end{figure}
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/board_pinout.png}
+    \caption{B-L475E-IOT01A Discovery Board pinout.}
+    \label{fig:B-L475E-IOT01A-Pinout}
+  \end{center}
+\end{figure}
+
+The microcontroller integrates 3 serial interfaces, 2 serial audio interfaces, 1 analog-to-digital converter, 1 I2C port, 1 USB connection, and 1 digital input/output port (GPIO). Its core is a 32-bit ARM RISC microprocessor with a power of 100 DMIPS (Dhrystone Million Instructions Per Second).
+
+The board (Fig. \ref{fig:B-L475E-IOT01A-Top}, \ref{fig:B-L475E-IOT01A-Bottom} and \ref{fig:B-L475E-IOT01A-Pinout}) includes a 3-axis magnetic induction sensor (+/-16 gauss = +/-16e-4T), a 3-axis acceleration sensor (+/-16g), and a 3-axis gyroscope (+/-2000°/s). It features a pressure sensor (260-1260hPa), a temperature sensor (+/-0.5°C), and a humidity sensor (0-100\% relative humidity, accuracy +/-3.5\%). Additionally, it has a motion and time-of-flight sensor (<2m) based on an infrared laser, and an authentication and security sensor.
+
+The board includes 4 radio frequency modules:
+
+\begin{enumerate}
+ \item a Bluetooth module (V4.1), 
+ \item a WiFi module (802.11 b/g/n),
+ \item an NFC tag communication module,
+ \item a sub-GHz 868MHz module.
+\end{enumerate}
+
+\hypertarget{b-u585i-iot02a-development-board}{%
+\subsubsection{2.2 B-U585I-IOT02A Development
+Board}\label{b-u585i-iot02a-development-board}}
+
+For the last section, that is where we will implement machine learning models into our projects, we will use the developer board \textit{B-U585I-IOT02A}, as it offers 2 Mbytes of Flash memory (twice as much as the model used previously) and 786 Kbytes of SRAM (more than six times greater than the previous model). These two parameters are crucial when deciding which microcontroller to use because they are the primary factors that limit edge applications. Typically, models require a significant amount of memory to perform their calculations.
+
+The enhanced memory capacity of the \textit{B-U585I-IOT02A} makes it an excellent choice for developing embedded AI solutions, allowing for more complex and efficient machine learning models to be implemented directly on the device. This capability is essential for achieving high performance and independence in edge AI applications.
+
+The board supports multiple connectivity options such as a Wi-Fi® module (802.11 b/g/n compliant) from MXCHIP and Bluetooth® Low Energy from STMicroelectronics. Additionally, it is equipped with various MEMS sensors, including a 3-axis magnetometer, 3D accelerometer, 3D gyroscope, pressure sensor, relative humidity and temperature sensor, time-of-flight and gesture-detection sensor, and an ambient-light sensor. It also includes two digital microphones and a security/authentication module for IoT devices.
+
+Connectivity is further enhanced by the inclusion of multiple board connectors: USB Type-C®, ARDUINO® Uno V3 expansion connectors, a camera module expansion connector, two STMod+ expansion connectors, and a Pmod™ expansion connector. The board offers flexible power supply options, including ST-LINK USB VBUS, USB connector, or external sources. An on-board STLINK-V3E debugger/programmer provides USB re-enumeration capability, mass storage, Virtual COM port, and a debug port.
+
+Fig. \ref{fig:B-U585I-IOT02A-Board}, \ref{fig:B-U585I-IOT02A-Top} and \ref{fig:B-U585I-IOT02A-Bottom} show the board, top and bottom peripherals respectively:
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/board2.png}
+    \caption{B-U585I-IOT02A Discovery Board.}
+    \label{fig:B-U585I-IOT02A-Board}
+  \end{center}
+\end{figure}
+
+\begin{figure}[H]
+  \begin{center}
+    \subfigure[\label{fig:B-U585I-IOT02A-Top}]{\includegraphics[width=0.49\textwidth]{images/board2_top.png}}
+    \hfill
+    \subfigure[\label{fig:B-U585I-IOT02A-Bottom}]{\includegraphics[width=0.49\textwidth]{images/board2_bottom.png}}
+    \caption{B-U585I-IOT02A top (a) and bottom (b) views.}
+  \end{center}
+\end{figure}
+
+The \textit{STM32U585AII6Q} microcontroller at the core of this board integrates advanced functionalities and interfaces to support diverse applications. The microcontroller includes:
+
+\begin{itemize}
+  \item \textbf{Analog-to-Digital Converters (ADC):} One fast 14-bit ADC (2.5 Msps) and one 12-bit ADC (2.5 Msps)
+  \item \textbf{Digital-to-Analog Converters (DAC):} Two DAC channels
+  \item \textbf{Comparators and Operational Amplifiers}: Two comparators and two operational amplifiers
+  \item \textbf{Voltage Reference:} An internal voltage reference buffer
+  \item \textbf{Timers:} A variety of timers including:
+  \begin{itemize}
+    \item Four 32-bit general-purpose timers
+    \item Three 16-bit general-purpose timers
+    \item Two 16-bit PWM timers dedicated to motor control
+    \item Two 16-bit basic timers
+    \item Four 16-bit low-power timers
+    \item A low-power RTC (Real-Time Clock)
+  \end{itemize}
+\end{itemize}
+
+The microcontroller also features a comprehensive set of communication interfaces:
+
+\begin{itemize}
+  \item \textbf{I2C Ports:} Four I2C interfaces
+  \item \textbf{SPI Ports:} Three SPI interfaces
+  \item \textbf{UART/USART Ports:} Three USARTs, two UARTs, and one low-power UART
+  \item \textbf{Serial Audio Interfaces (SAIs):} Two SAIs for audio processing
+  \item \textbf{Digital Camera Interface:} One DCMI (Digital Camera Interface)
+  \item \textbf{SDMMC:} Two SDMMC (Secure Digital MultiMedia Card) interfaces
+  \item \textbf{FDCAN:} One Flexible Data-Rate CAN interface
+  \item \textbf{USB Connections:} One USB OTG full-speed and one USB Type-C / USB Power Delivery controller
+  \item \textbf{PSSI:} One generic synchronous 8-/16-bit PSSI (parallel data input/output slave interface)
+\end{itemize}
+
+The core is a 32-bit ARM RISC microprocessor, enhanced with Arm® TrustZone® for secure execution environments.
+
+The MEMS sensors on the board provide comprehensive environmental and motion sensing capabilities:
+
+\begin{itemize}
+  \item A 3-axis magnetometer for magnetic field measurement
+  \item A 3D accelerometer for motion detection
+  \item A 3D gyroscope for angular velocity measurement
+  \item A pressure sensor covering 260-1260 hPa
+  \item A combined humidity and temperature sensor
+  \item A time-of-flight sensor for distance and gesture detection
+  \item An ambient-light sensor
+\end{itemize}
+
+Additionally, the board integrates authentication and security features to ensure secure operations in IoT applications.
+
+The radio frequency modules on the board include:
+
+\begin{itemize}
+  \item A Bluetooth module compliant with Bluetooth V4.1 standards
+  \item A Wi-Fi module compliant with 802.11 b/g/n standards
+\end{itemize}
+
+This combination of features makes the \textit{B-U585I-IOT02A} an ideal platform for developing and prototyping smart connected objects, with ample support for additional external modules and sensors through various expansion connectors.
+
+\hypertarget{how-to-program-your-mcu}{%
+\subsubsection{2.3 How to Program your
+MCU}\label{how-to-program-your-mcu}}
+
+Programming an STM32 microcontroller unit (MCU) can be done using several methods and tools, each offering different features and benefits. Here are some of the most common ways to program an STM32 MCU:
+
+\textbf{\textit{STM32CubeIDE}:}
+
+\textit{STM32CubeIDE} is an integrated development environment (IDE) from \textit{STMicroelectronics} tailored specifically for STM32 microcontrollers. It combines ST’s \textit{STM32CubeMX}, which is a graphical tool for configuring microcontrollers and generating initialization C code, with the Eclipse IDE and the GCC toolchain.
+
+\begin{itemize}
+  \item \textbf{Features:}
+    \begin{itemize}
+      \item \textbf{Graphical Configuration:} \textit{STM32CubeMX} allows you to configure peripherals and middleware components through a graphical interface.
+      \item \textbf{Code Generation:} Automatic generation of initialization code for peripherals and middleware.
+      \item \textbf{Debugging:} Integrated debugging tools with support for ST-LINK debug probes.
+      \item \textbf{Compilation:} Uses GCC toolchain for compiling code.
+      \item \textbf{Project Management:} Allows for easy project management and configuration.
+    \end{itemize}
+  \item \textbf{Advantages:}
+    \begin{itemize}
+      \item \textbf{Integrated Environment:} Everything you need is in one place, from configuration to debugging.
+      \item \textbf{STMicroelectronics Support:} Direct support from the MCU manufacturer ensures up-to-date features and compatibility.
+      \item \textbf{Free to Use:} \textit{STM32CubeIDE} is free to download and use.
+    \end{itemize}
+\end{itemize}
+
+\textbf{\textit{MBed OS}:}
+
+\textit{MBed OS} is an open-source embedded operating system designed specifically for the Internet of Things (IoT). It provides a high-level API, simplifying the development of IoT applications on ARM Cortex-M microcontrollers, including STM32.
+
+\begin{itemize}
+  \item \textbf{Features:}
+    \begin{itemize}
+      \item \textbf{High-Level API:} Provides abstractions for hardware interfaces, making code more portable.
+      \item \textbf{RTOS:} Built-in real-time operating system for multitasking.
+      \item \textbf{Connectivity:} Integrated support for various connectivity protocols (e.g., Bluetooth, Wi-Fi, Ethernet).
+      \item \textbf{Security:} Built-in security features, including secure communication and secure boot.
+    \end{itemize}
+  \item \textbf{Advantages:}
+    \begin{itemize}
+      \item \textbf{Ease of Use:} Simplifies the process of writing complex applications with its high-level API.
+      \item \textbf{Portability:} Code written for \textit{MBed OS} can be easily ported across different hardware platforms.
+      \item \textbf{Community and Support:} Strong community support with extensive documentation and examples.
+      \item \textbf{Online Compiler:} Provides an online compiler for quick prototyping and development.
+    \end{itemize}
+\end{itemize}
+
+\textbf{VS Code with STM32 Extension:}
+
+\textit{Visual Studio Code (VS Code)} is a lightweight, open-source code editor developed by \textit{Microsoft}. Recently, extensions have been developed to support STM32 development within \textit{VS Code}, such as the STM32 for VS Code extension.
+
+\begin{itemize}
+  \item \textbf{Features:}
+    \begin{itemize}
+      \item \textbf{Lightweight IDE:} VS Code is known for being a lightweight and highly customizable code editor.
+      \item \textbf{Extensions:} The STM32 extension provides integration with \textit{STM32CubeMX}, debugging support, and code completion features.
+      \item \textbf{Cross-Platform:} Available on Windows, macOS, and Linux.
+      \item \textbf{Integrated Terminal:} Allows the use of command-line tools directly within the editor.
+    \end{itemize}
+  \item \textbf{Advantages:}
+    \begin{itemize}
+      \item \textbf{Customization:} Highly customizable environment with numerous available extensions.
+      \item \textbf{Modern Editor:} VS Code offers modern editing features, such as IntelliSense, debugging, and Git integration.
+      \item \textbf{Flexibility:} Can be used with different compilers and build systems.
+    \end{itemize}
+\end{itemize}
+
+Each tool offers unique benefits and caters to different aspects of STM32 development. \textit{STM32CubeIDE} provides a comprehensive, integrated solution directly from STMicroelectronics. \textit{MBed OS} simplifies IoT development with its high-level APIs and real-time operating system. VS Code, with its modern, extensible nature, offers a flexible and lightweight development environment suitable for a variety of use cases. Choosing the right tool depends on your specific needs, project requirements, and personal preferences.
+
+\hypertarget{choosing-the-ide}{%
+\subsubsection{2.4 Choosing the IDE}\label{choosing-the-ide}}
+
+In Chapter 2, we will learn how to use the \textit{Mbed Studio} platform to develop our projects, while in section 3, we will use \textit{STM32CubeIDE}. While the former is an excellent tool that offers a simplified environment for projects with fewer requirements and a "user-friendly" interface, the latter allows for greater control over MCU programming and having a more flexible environment. Additionally, \textit{STM32CubeIDE} includes a specific package for AI applications, making it more suitable for advanced projects that require additional functionalities. Here is a comparison between both software platforms:
+
+\begin{enumerate}
+  \item \textbf{Advantages of \textit{STM32CubeIDE}:}
+    \begin{enumerate}
+      \item \textbf{Control and Flexibility:} Provides greater control over MCU programming with a wide range of configurations and customization options.
+      \item \textbf{Advanced Features:} Support for specific packages for AI applications, advanced graphics, and other high-complexity features.
+      \item \textbf{Advanced Debugging:} Robust debugging tools, including support for breakpoints, memory, and register inspection.
+      \item \textbf{Integration with STM32CubeMX:} Facilitates peripheral and middleware configuration and initial code generation.
+      \item \textbf{Extensive Documentation and Community:} Broad community support and detailed documentation provided by STMicroelectronics.
+    \end{enumerate}
+  \item \textbf{Disadvantages of \textit{STM32CubeIDE}:}
+    \begin{enumerate}
+      \item \textbf{Learning Curve:} Can be more complex with a steeper learning curve for beginners.
+      \item \textbf{System Requirements:} Requires more system resources and can be heavier on lower-spec machines.
+      \item \textbf{Initial Setup:} Initial setup can be more time-consuming and complex due to numerous available options and adjustments.
+    \end{enumerate}
+  \item \textbf{Advantages of \textit{Mbed Studio}:}
+    \begin{enumerate}
+      \item \textbf{Simplicity and Ease of Use:} More simplified and user-friendly environment for beginners with quick and easy initial setup.
+      \item \textbf{Ready Libraries and Components:} Easy access to a vast library of components and code examples that accelerate development.
+      \item \textbf{Cross-Platform:} Supports a wide variety of boards and MCUs beyond STM32 products.
+      \item \textbf{Rapid Development:} Ideal for rapid prototyping and projects that do not require advanced functionalities.
+      \item \textbf{Online Environment:} Available as an online platform, allowing development without the need for local installation.
+    \end{enumerate}
+  \item \textbf{Disadvantages of \textit{Mbed Studio}:}
+    \begin{enumerate}
+      \item \textbf{Less Control:} Offers less control and customization compared to \textit{STM32CubeIDE}, which can be limiting for complex projects.
+      \item \textbf{Limited Advanced Features:} May not support some advanced features needed for specific projects, such as AI applications or advanced graphics.
+      \item \textbf{Limited Debugging:} Less robust debugging tools compared to \textit{STM32CubeIDE}.
+    \end{enumerate}
+\end{enumerate}
+
+\hypertarget{chapter-2-exploring-mbed-os}{%
+\section{Chapter 2: Exploring MBed
+OS}\label{chapter-2-exploring-mbed-os}}
+
+As mentioned earlier, we will start with \textit{MBed OS}, due to the points raised, so we will go through the initial setup steps of the environment, basic examples of how to create your projects, use sensors, interface them with the board, and perform communication protocols.
+
+\hypertarget{installation-and-setup}{%
+\subsection{1. Installation and Setup}\label{installation-and-setup}}
+
+Before starting to program our MCU, we need to install our environment, the driver and update the board, so:
+
+\begin{enumerate}
+  \item Connect the board to your PC via one of the USB ports: \texttt{USB-STLink}. The simplest way to power the board is by using the 5V from the USB. To do this, place a jumper on JP4 on the \texttt{5V\_ST\_LINK} pins in your board.
+
+  \item Then, install the necessary driver in your PC and restart it. This driver is available in:
+  
+  \begin{center}
+    \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/setup/en.stsw-link009.zip}{\faFolder\texttt{\ setup/en.stsw-link009.zip}}
+  \end{center}
+
+  \item Once the driver is installed, the board appears as a D drive in your PC. Open this drive and check the \texttt{Details.txt} file. If the BIOS version seems outdated, it is preferable to update it. To do this, download the file to update the board and run the executable. When the window appears, click on \texttt{Device connect} to verify the BIOS version. If the BIOS version is older than the one provided, click on \texttt{Yes >>>>>} to update to the new BIOS. The program is available in:
+  
+  \begin{center}
+    \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/setup/Bios_update_ST.zip}{\faFolder\texttt{\ setup/Bios\_update\_ST.zip}}
+  \end{center}
+  
+  \begin{figure}[H]
+      \centering
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/1.png}
+      \caption{Updating the BIOS of the board.}
+  \end{figure}
+
+  \item \textbf{Installation of \textit{Mbed Studio}}: This software is available at \url{https://os.mbed.com/studio/} for Windows, Mac, and Linux. The installation is straightforward by executing the provided program. Once installed, the software will prompt you to create an account to use the programming environment. If it identifies outdated drivers or BIOS versions on the board, it may ask you to authorize updates.
+
+  \item \textbf{An alternative to installing \textit{Mbed Studio}} is using the \textit{Keil Arm} online programming interface, available at \url{https://studio.keil.arm.com/}. The same \textit{MBed} account can be used across all environments.
+\end{enumerate}
+
+\hypertarget{example-blinking-a-led}{%
+\subsection{2. Example Blinking a LED}\label{example-blinking-a-led}}
+
+Using the board involves running executable software on it. Therefore, applications need to be developed in the form of executables for the board. This requires using a specific development system, which interfaces with the \textit{MBed OS} operating system running on the ARM microcontrollers. This development system includes several sample source codes (in C language) that can be easily modified to create a specific application.
+
+We will implement a very simple first example: the blinking LED.
+
+\begin{enumerate}
+  \item \textbf{Start the software}, create your account, and configure your working directory.
+  
+    \begin{itemize}
+      \item Once this is done, all projects will be located in this directory.
+    \end{itemize}
+
+  \item \textbf{Create a new project} by importing an example program:
+  
+    \begin{itemize}
+      \item Navigate to \textbf{File -> New Program}.
+      \item A selection window will appear, choose \textbf{\textit{mbed-os-example-blinky}}.
+    \end{itemize}
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/2.png}
+    \end{figure}
+
+  \item \textbf{Configure the program}:
+  
+    \begin{itemize}
+      \item Next, you can give the project a name, such as \texttt{mbed-LED1}.
+      \item Make the program active.
+      \item For the first program, save the \textit{Mbed} environment in your directory.
+    \end{itemize}
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/3.png}
+    \end{figure}
+
+  \item Click on \textbf{ADD\_PROGRAM} to complete the setup.
+\end{enumerate}
+
+The program appears on the right side of the environment. To make a project active later, right-click on it and select \texttt{Set Active Program}. The name of the active program will then appear in bold among the different projects.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/4.png}
+\end{figure}
+
+You can open the corresponding code by clicking on the \texttt{main.cpp} file:
+
+\begin{lstlisting}[style=CStyle]
+#include "mbed.h"
+
+// Blinking rate in milliseconds
+#define BLINKING_RATE     500ms
+
+int main()
+{
+    // Initialize the digital pin LED1 as an output
+#ifdef LED1
+    DigitalOut led(LED1);
+#else
+    bool led;
+#endif
+
+    while (true) {
+        led = !led;
+        ThisThread::sleep_for(BLINKING_RATE);
+    }
+}
+\end{lstlisting}
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-2/mbed-LED1/main.cpp}{\faFolder\texttt{\ chapter-2/mbed-LED1/main.cpp}}
+\end{center}
+
+\texttt{led} is an object of the \texttt{DigitalOut} class. \texttt{LED1} is the name of the pin on the board, which is passed to the \texttt{DigitalOut} constructor. \texttt{LED1} and \texttt{LED2} are green LEDs located between the two USB interfaces, on the left and right respectively. \texttt{LED3} is a yellow LED located below the WiFi module on the left. \texttt{LED4} is a blue LED at the bottom right, near the MEMS microphones. The \texttt{led} object can take two binary values: '1' or '0'. The \textit{MBed OS} function \texttt{sleep\_for} allows the process to sleep for a specified time in milliseconds. The use of the \texttt{while (true)} loop ensures that the main program runs indefinitely, which is necessary for embedded IoT applications deployed in the field. Once turned on, the IoT device executes its main program continuously.
+
+To compile and download the code to the board, click on the compile icon. The first compilation takes a long time because all the libraries are compiled. For subsequent compilations, only the main program \texttt{main.cpp} will be recompiled. If you make significant modifications, you can invoke the \texttt{Clean Build} mode, which functions like the first compilation and takes a lot of time.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/5.png}
+\end{figure}
+
+Note that whenever you modify the configuration or environment files, the entire project needs to be recompiled. Check that the LED blinks with a period of 1 second.
+
+Now, let's add a second LED and display a message at startup.
+
+\begin{lstlisting}[style=CStyle]
+#include "mbed.h"
+
+// Blinking rates in milliseconds
+#define BLINKING_RATE 500ms
+
+int main() {
+    // Initialize the digital pins LED1 and LED2 as outputs
+    DigitalOut led1(LED1);
+    DigitalOut led2(LED2);
+    led1=0 ; led2=1 ;
+
+    // Display a message at startup
+    printf("Starting LED blink program\n");
+
+    while (true) {
+        led1 = !led1;
+        led2 = !led2;
+        ThisThread::sleep_for(BLINKING_RATE);
+    }
+}
+\end{lstlisting}
+
+When the program starts, a new tab appears in the bottom right section of the tool, allowing you to display the results of \texttt{printf} functions as shown below. You can extend this example with \texttt{LED3} according to your needs. The LEDs on the board can serve as a visual indicator for the operation of the application being developed in the project.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\dimexpr\textwidth-3cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/6.png}
+\end{figure}
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-2/mbed-LED2/main.cpp}{\faFolder\texttt{\ chapter-2/mbed-LED2/main.cpp}}
+\end{center}
+
+\hypertarget{example-using-the-boards-internal-sensors}{%
+\subsection{3. Example Using the Board's Internal
+Sensors}\label{example-using-the-boards-internal-sensors}}
+
+The available development board already has several integrated sensors that are used to showcase the various applications that can be performed using it. Therefore, we can use a library to have easy access to the functionalities of these components or even a ready-made complete project available on the \textit{Mbed} website.
+
+\hypertarget{importing-a-complete-project}{%
+\subsubsection{3.1 Importing a Complete
+Project}\label{importing-a-complete-project}}
+
+\begin{enumerate}
+    \item First, go to the official site: \url{https://os.mbed.com/code/}
+    \item In the search bar, type:
+    \begin{itemize}
+        \item \textit{ST BSP\_B-L475E-IOT01}
+    \end{itemize}
+    \item You will quickly find an official project from \textit{ST}.
+    
+    \begin{figure}[H]
+        \begin{center}
+            \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/7.png}
+        \end{center}
+    \end{figure}
+
+    \item Copy the link address by right-clicking on it.
+    
+    \begin{figure}[H]
+        \begin{center}
+            \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/8.png}
+        \end{center}
+    \end{figure}
+
+    \item Then, go to the menu: \textbf{File -> Import Program}
+    \item Paste the previously copied address and click on \textbf{Add Program}.
+    
+    \begin{figure}[H]
+        \begin{center}
+          \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/9.png}
+        \end{center}
+    \end{figure}
+\end{enumerate}
+
+Open the code of \texttt{main.cpp}. Read the main program for a better understanding of the application.
+
+\begin{enumerate}
+    \item You will find the importation of sensor reading libraries, the reading commands, and the commands for sending to the serial port.
+    \item Compile the project and download it onto the board.
+    \item You can check the value of the temperature, for example, and by positioning the board on its sides, you can check the accelerations in X, Y, and Z.
+\end{enumerate}
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-2/DISCO_L475VG_IOT01-Sensors-BSP/main.cpp}{\faFolder\texttt{\ chapter-2/DISCO\_L475VG\_IOT01-Sensors-BSP/main.cpp}}
+\end{center}
+
+\hypertarget{starting-from-a-blank-project}{%
+\subsubsection{3.2 Starting from a Blank
+Project}\label{starting-from-a-blank-project}}
+
+This time, we will create an empty project and import all the necessary libraries.
+
+\begin{enumerate}
+    \item \textbf{Create a New Project}:
+    \begin{itemize}
+        \item Go to \textbf{File -> New Program}, then choose \textbf{mbed6 empty Mbed program}, and click on \textbf{Add Program}.
+    \end{itemize}
+    
+    \begin{figure}[H]
+        \begin{center}
+          \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/10.png}
+        \end{center}
+    \end{figure}
+
+    \item \textbf{Add Internal Board Sensor Libraries}:
+    \begin{itemize}
+        \item Return to \url{https://os.mbed.com/code/}.
+        \item Click on the previously chosen project.
+        \item At the top of the page, you will see a dependency on the \textit{BSP\_B-L475E-IOT01} library.
+        \item Right-click on the library name to copy its address.
+    \end{itemize}
+    
+    \begin{figure}[H]
+        \begin{center}
+            \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/11.png}
+        \end{center}
+    \end{figure}
+
+    \begin{itemize}
+        \item Import the library into the project by going to \textbf{File -> Add Library to Active Program}.
+        \item Paste the address into the window.
+    \end{itemize}
+    
+    \begin{figure}[H]
+        \begin{center}
+            \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/12.png}
+        \end{center}
+    \end{figure}
+
+    \begin{itemize}
+        \item Click on \textbf{Next} and choose the default option.
+    \end{itemize}
+    
+    \begin{figure}[H]
+        \begin{center}
+            \includegraphics[width=\dimexpr\textwidth-7cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/13.png}
+        \end{center}
+    \end{figure}
+
+    \begin{itemize}
+        \item Click on \textbf{Finish}.
+    \end{itemize}
+    
+    \item \textbf{Add Code to the Program}
+    \begin{itemize}
+        \item Copy the code found in \texttt{chapter-2/internal-sensors/main.cpp} into your \texttt{main.cpp}.
+        \item Compile and upload the program to the board.
+    \end{itemize}
+    
+    \item \textbf{See Results}:
+    \begin{itemize}
+        \item You might notice that floating point numbers are not displayed correctly. This is because by default, \textit{MBed OS 6} does not handle floating point printing to reduce code size.
+    \end{itemize}
+    
+    \begin{figure}[H]
+        \begin{center}
+            \includegraphics[width=\dimexpr\textwidth-5cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/14.png}
+        \end{center}
+    \end{figure}
+\end{enumerate}
+
+To enable this functionality:
+
+\begin{enumerate}
+    \item Open the \texttt{mbed\_lib.json} file in the path \texttt{chapter-2/internal-sensors/mbed-os/platform} of your project.
+    
+    \begin{figure}[H]
+        \begin{center}
+            \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/15.png}
+        \end{center}
+    \end{figure}
+
+    \item Look for the section:
+    
+    \begin{lstlisting}[style=JsonStyle]
+"minimal-printf-enable-floating-point": {
+    "help": "Enable floating point printing when using minimal printf library",
+    "value": false
+}
+    \end{lstlisting}
+    
+    \item Change \texttt{"value": false} to \texttt{"value": true}.
+    \item Recompile the entire project. Unfortunately, the system performs a complete recompilation because a system file has been modified and that can take a while to finish, so always pay attention to the configurations you want before compiling your project.
+\end{enumerate}
+
+Now, you can verify that the floating point numbers are displayed correctly.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=\dimexpr\textwidth-5cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/16.png}
+    \end{center}
+\end{figure}
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/schapter-2/internal-sensors}{\faFolder\texttt{\ chapter-2/internal-sensors}}
+\end{center}
+
+\hypertarget{sensors-tutorial}{%
+\subsection{4. Sensors Tutorial}\label{sensors-tutorial}}
+
+For this section, we will use a kit containing various sensors and components, which is extremely useful for those starting in the world of microcontrollers due to the wide range of projects and applications in which they can be used. But you can use your own sensor and components that you have available.
+
+This kit includes over twenty sensors (such as position, light, magnetic, and temperature sensors) and around ten actuators (including LEDs, relays, buzzers, and lasers). Another positive aspect of this kit is the availability of content on the internet regarding its use with various other microcontrollers, which can serve as a foundation for your projects.
+
+\textbf{Types of Sensor Outputs:}
+
+Sensors can provide different types of outputs:
+
+\begin{enumerate}
+    \item \textbf{Analog Voltage:} These sensors output a varying voltage and need to be connected to ADC (Analog-to-Digital Converter) inputs.
+    \item \textbf{Digital Signal:} These sensors output a binary signal (high or low) and should be connected to digital inputs.
+\end{enumerate}
+
+Some more complex sensors communicate via serial communication, requiring the use of an appropriate driver.
+
+\hypertarget{list-of-available-sensors-and-actuators}{%
+\subsubsection{4.1 List of Available Sensors and
+Actuators}\label{list-of-available-sensors-and-actuators}}
+
+Here is the list of available sensors and actuators (Table \ref{table:sensors-actuators}), along with the type of signal to use. For actuators (A), the inputs are either digital (D) or PWM (Pulse Width Modulation). For sensors (S), the information can be analog (A), digital (D), or more complex, in which case the appropriate driver must be used.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{clccc}
+      \hline
+      \textbf{ID} & \textbf{Name} & \textbf{Sens./Act.} & \textbf{Input} & \textbf{Output} \\
+      \hline
+      \rowcolor{gray!20} 1   & Joystick module               & S                 &                & AAD             \\
+      3   & Large microphone              & S                 &                & AD              \\
+      \rowcolor{gray!20} 4   & Small sound module            & S                 &                & AD              \\
+      5   & Line Tracking module          & S                 &                & D               \\
+      \rowcolor{gray!20} 6   & Obstacle Avoidance module     & S                 &                & D               \\
+      7   & Flame module                  & S                 &                & AD              \\
+      \rowcolor{gray!20} 8   & Linear hall module            & S                 &                & AD              \\
+      9   & Touch sensor                  & S                 &                & D (+A)          \\
+      \rowcolor{gray!20} 10  & Digital temperature sensor    & S                 &                & A               \\
+      17  & Reed switch module            & S                 &                & D (+A)          \\
+      \rowcolor{gray!20} 18  & Mini reed switch module       & S                 &                & D               \\
+      19  & Heartbeat module              & S                 &                & A               \\
+      \rowcolor{gray!20} 22  & Button switch module          & S                 &                & D               \\
+      23  & Vibration Shock module        & S                 &                & D               \\
+      \rowcolor{gray!20} 24  & Rotary encoders module        & S                 &                & D (clock+sens)  \\
+      26  & Tilt switch module            & S                 &                & D               \\
+      \rowcolor{gray!20} 27  & Ball switch sensor            & S                 &                & D               \\
+      28  & Photo-resistor module         & S                 &                & A               \\
+      \rowcolor{gray!20} 29  & Temp. and humidity module      & S                 &                & driver          \\
+      30  & Hall effect sensor            & S                 &                & A               \\
+      \rowcolor{gray!20} 31  & Hall magnetic sensor module   & S                 &                & D/A             \\
+      32  & Digital temperature module    & S                 &                & driver (serial) \\
+      \rowcolor{gray!20} 33  & Analog temp module            & S                 &                &                 \\
+      35  & Infrared Receiver             & S                 &                & D               \\
+      \rowcolor{gray!20} 36  & Photo-interrupter module      & S                 &                & D               \\
+      37  & HitSensor                     & S                 &                & D               \\
+      \rowcolor{gray!20} 25  & Switch light module           & S/A               &                &                 \\
+      2   & Relay module                  & A                 & D              & relay           \\
+      \rowcolor{gray!20} 11  & Buzzer module                 & A                 & D              &                 \\
+      12  & Passive buzzer                & A                 & PWM            &                 \\
+      \rowcolor{gray!20} 13  & RGB LED module                & A                 & PWM            &                 \\
+      14  & SMD RGB module                & A                 & PWM+resistor &                 \\
+      \rowcolor{gray!20} 15  & Dual-color LED & A                 & PWM            &                 \\
+      16  & Mini two-color module         & A                 & PWM            &                 \\
+      \rowcolor{gray!20} 20  & 7 color flash module          & A                 & D              &                 \\
+      21  & Laser module                  & A                 & D              &                 \\
+      \rowcolor{gray!20} 34  & IR emission                   & A                 & D              &                 \\
+      \hline
+  \end{tabular}
+  \caption{List of available sensors and actuators.}
+  \label{table:sensors-actuators}
+\end{table}
+
+Next, we will demonstrate the implementations of some of these sensors so that you have the basic knowledge needed to create your own projects using them or the other ones.
+
+\hypertarget{joystick-sensor}{%
+\subsubsection{4.2 Joystick Sensor}\label{joystick-sensor}}
+
+This sensor, as shown in Fig. \ref{fig:joystick}, provides two analog voltages (joystick position in X/Y) and a digital voltage (push button). The X and Y position signals should be connected to the A0 and A1 ports of the processor board, the Switch signal to the D8 input, and GND to ground. However, the 5V signal should be connected to the 3.3V pin on the board. This is because the analog-to-digital converter on the ST board operates between 0 and 3.3V. If powered with 5V, the X and Y signals will exceed the allowed limit.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-3cm\relax,keepaspectratio]{images/joystick.jpg}
+    \caption{Joystick Sensor.}
+    \label{fig:joystick}
+  \end{center}
+\end{figure}
+
+You can use the following program to test the joystick. This program displays the joystick's status every second and lights up the LED based on the push button status.
+
+\begin{lstlisting}[style=CStyle]
+#include "mbed.h"
+
+AnalogIn analog_value0(A0);
+AnalogIn analog_value1(A1);
+
+DigitalIn pb(D8);
+DigitalOut led(LED1);
+
+int main()
+{
+    float meas_r0, meas_r1;
+    float meas_v0, meas_v1;
+    int but;
+
+    printf("\nJoystick example\n\r");
+
+    while(1) {
+        meas_r0 = analog_value0.read();
+        // Read the analog input value (value from 0.0 to 1.0 = full ADC conversion range)
+        meas_v0 = meas_r0 * 3300;
+        // Converts value in the 0V-3.3V range
+        meas_r1 = analog_value1.read();
+        // Read the analog input value (value from 0.0 to 1.0 = full ADC conversion range)
+        meas_v1 = meas_r1 * 3300;
+        // Converts value in the 0V-3.3V range
+        but = pb;
+
+        // Display values
+        printf("measure x= %f = %.0f mV y= %f = %.0f mV %d \n\r", meas_r0, meas_v0, meas_r1, meas_v1, but);
+
+        // LED is ON when the button is pushed
+        led = pb;
+
+        ThisThread::sleep_for(1000ms); // 1 second
+    }
+}
+\end{lstlisting}
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-2/joystick-sensor/main.cpp}{\faFolder\texttt{\ chapter-2/joystick-sensor/main.cpp}}
+\end{center}
+
+\hypertarget{multicolor-led}{%
+\subsubsection{4.3 Multicolor LED}\label{multicolor-led}}
+
+There are two LED modules available, one with a standard LED (Fig. \ref{fig:LED-TH}) and one with a surface-mounted LED (Fig. \ref{fig:LED-SMD}).
+
+\begin{figure}[H]
+  \begin{center}
+    \subfigure[\label{fig:LED-TH}]{\includegraphics[width=0.25\textwidth]{images/LED_TH.png}}
+    \subfigure[\label{fig:LED-SMD}]{\includegraphics[width=0.25\textwidth]{images/LED_SMD.png}}
+    \caption{Multicolor LED: standard mounting (a) and surface mounting (b).}
+  \end{center}
+\end{figure}
+
+Connect the Red, Green and Blue inputs of the module to the D9, D10, and D11 outputs of the board and ground to a ground point. The first program controls the Red, Green, and Blue components of the LED separately. We have seven possible colors. In the provided program, we alternately see black, the three primary colors, and white.
+
+\begin{lstlisting}[style=CStyle]
+#include "mbed.h"
+
+DigitalOut R(D9);
+DigitalOut G(D10);
+DigitalOut B(D11);
+
+int main()
+{
+    printf("\n\r LED example ON/OFF\n\r");
+
+    while(1) {
+        R = 0; G = 0; B = 0;
+        ThisThread::sleep_for(1000ms); // wait 1 second
+        R = 1; G = 0; B = 0;
+        ThisThread::sleep_for(1000ms); // wait 1 second
+        R = 0; G = 1; B = 0;
+        ThisThread::sleep_for(1000ms); // wait 1 second
+        R = 0; G = 0; B = 1;
+        ThisThread::sleep_for(1000ms); // wait 1 second
+        R = 1; G = 1; B = 1;
+        ThisThread::sleep_for(1000ms); // wait 1 second
+    }
+}
+\end{lstlisting}
+
+The second program uses PWM generators to control the intensity of the three colors.
+
+\begin{lstlisting}[style=CStyle]
+#include "mbed.h"
+
+PwmOut R(D9);
+PwmOut G(D10);
+PwmOut B(D11);
+
+int val;
+
+int main()
+{
+    printf("\n\r LED example with PWM\n\r");
+
+    while(1) {
+        R.write(0); G.write(0); B.write(0);
+        ThisThread::sleep_for(1000ms); // wait 1 second
+
+        for (val = 0; val <= 1000; val++) {
+            R.write((double)val / 1000.0);
+            ThisThread::sleep_for(10ms); // wait 0.01 second
+        }
+
+        for (val = 0; val <= 1000; val++) {
+            G.write((double)val / 1000.0);
+            ThisThread::sleep_for(10ms); // wait 0.01 second
+        }
+
+        for (val = 0; val <= 1000; val++) {
+            B.write((double)val / 1000.0);
+            ThisThread::sleep_for(10ms); // wait 0.01 second
+        }
+
+        ThisThread::sleep_for(1000ms); // wait 1 second
+    }
+}
+\end{lstlisting}
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-2/multicolor-LED-PWM/main.cpp}{\faFolder\texttt{\ chapter-2/multicolor-LED-PWM/main.cpp}}
+\end{center}
+
+\textbf{Exercise:} Using the joystick and the LED, intelligently control
+(in a manner of your choosing) the LED color using the joystick.
+
+\hypertarget{humidity-sensor}{%
+\subsubsection{4.4 Humidity Sensor}\label{humidity-sensor}}
+
+Here is the connection for the humidity sensor illustrated in Fig. \ref{fig:humidity-sensor}. Connect the signal pin to the D4 port of the processor board. The signal is digital and contains temperature and humidity information. As previously, start from an empty project.
+
+\begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-4cm\relax,keepaspectratio]{images/DHT11.png}
+      \caption{Humidity sensor connection.}
+      \label{fig:humidity-sensor}
+    \end{center}
+\end{figure}
+
+To use this sensor, we need a specific driver that we can retrieve from the environment. As before, search for a library called DHT11 at \url{https://os.mbed.com/code/}.
+
+The first result is suitable. Copy the link address.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/17.png}
+  \end{center}
+\end{figure}
+
+Then add the library by navigating to \textbf{File -> Add library to active program}.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-3cm\relax,keepaspectratio]{images/18.png}
+  \end{center}
+\end{figure}
+
+As you can see, the project now contains the driver sources for this sensor. All that's left is to write the program, based on the DHT11.h driver header file.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-3cm\relax,keepaspectratio]{images/19.png}
+  \end{center}
+\end{figure}
+
+The header provides a constructor that takes a pin name argument and three methods: \texttt{readData} to read the sensor state, \texttt{readHumidity} to get humidity information, and \texttt{readTemperature} to get temperature information.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/20.png}
+  \end{center}
+\end{figure}
+
+The following program uses the driver and continuously displays the temperature and humidity on the serial console.
+
+\begin{lstlisting}[style=CStyle]
+#include "mbed.h"
+#include "DHT11.h"
+
+DHT11 sensor(D4); // declare the sensor on pin D4
+
+int main()
+{
+    int error = 0;
+    int h, t;
+
+    printf("Starting \n\r");
+
+    while(1) {
+        ThisThread::sleep_for(2000ms);
+        error = sensor.readData();
+        if (error == 0) {
+            t = sensor.readTemperature();
+            h = sensor.readHumidity();
+            printf("Temperature is: %d \n\r", t);
+            printf("Humidity is: %d \n\r", h);
+        } else {
+            printf("Error: %d\n", error);
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-2/humidity-sensor/main.cpp}{\faFolder\texttt{\ chapter-2/humidity-sensor/main.cpp}}
+\end{center}
+
+\hypertarget{appendix-example-program-to-control-leds-with-the-joystick}{%
+\subsubsection{4.5 Appendix: Example Program to Control LEDs with the
+Joystick}\label{appendix-example-program-to-control-leds-with-the-joystick}}
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-2/joystick-control}{\faFolder\texttt{\ chapter-2/joystick-control}}
+\end{center}
+
+\hypertarget{connecting-the-board-to-the-network-via-wifi}{%
+\subsection{5. Connecting the Board to the Network via
+WIFI}\label{connecting-the-board-to-the-network-via-wifi}}
+
+In this section, we will establish the board's connection to the internet using the integrated WiFi module through socket communication using a TCP protocol. This communication will be very useful for the next section, where we will integrate our project with the ThingSpeak cloud server.
+
+\hypertarget{data-transmission-standards}{%
+\subsubsection{5.1 Data Transmission
+Standards}\label{data-transmission-standards}}
+
+The connected device to be developed must be able to communicate with the Cloud (remote server) via a telecommunications network. These data will then be accessible via the Cloud for further processing by remote users.
+
+There are several solutions for transmitting data from the STM32 board:
+
+\begin{itemize}
+    \item \textbf{Sigfox:} Sigfox is a telecommunications operator for the Internet of Things. Communications between connected objects and the Cloud via this network are unidirectional, with low data rates and very infrequent transmissions (140 messages per day). These specificities/limitations are compatible with the operating criteria of most connected objects. However, Sigfox is a paid service that only provides access to its network under a subscription.
+    
+    \item \textbf{LoRa:} LoRa is another LPWAN (Low Power Wide Area Network) solution. Its communication protocol is similar to that of Sigfox except that communication is bidirectional. The data rate is higher, and the number of messages per day is not limited. The major difference between Sigfox and LoRa is that LoRa offers its services freely (free of charge).
+    
+    \item \textbf{WiFi:} The third solution, used in this project, involves using the WiFi module of the STM32 board. In this project, the connected object is designed to transmit data from its sensors (STM32 board) using the router present in the room as a WiFi access point or possibly your smartphone. This solution does not have the advantages of LoRa and Sigfox (long range), but it is straightforward to implement with STM32 boards.
+\end{itemize}
+
+The limitation imposed by the WiFi network (range: about twenty meters) is not to be taken into account in your proposal for a connected object. It is essential to propose a functional version of your solution (proof of concept) as well as a visual exploitation (graphical, data analysis, statistics) of the data transmitted by the STM32 board.
+
+\hypertarget{compilation-and-launch}{%
+\subsubsection{5.2 Compilation and
+Launch}\label{compilation-and-launch}}
+
+The following steps describe how to set up a communication routine from the board to an HTTP server via a WiFi network. To start:
+
+\begin{enumerate}
+    \item Launch the \textit{MBed} application.
+    \item Define a new project (menu File, New program).
+    \item Choose the template \texttt{mbed-os-example-sockets} from the dropdown menu.
+    \item Rename your program if desired (Program Name).
+    \item You can use
+
+ the \textit{MBed} environment from an existing project as shown in the following example, which saves about 1GB per project.
+\end{enumerate}
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/21.png}
+  \end{center}
+\end{figure}
+
+The created project structure is shown in the next figure. It includes the subfolder \texttt{COMPONENT\_ism43362} (driver for the WiFi chip on the STM32 board).
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/22.png}
+  \end{center}
+\end{figure}
+
+The \texttt{mbed\_app.json} file (in the project's root) is essential for WiFi communication. This file contains the connection parameters. The WiFi SSID and the associated PASSWORD are available in the project rooms (see the label on the WiFi routers) or you can use your own routed connection from your phone. You need to modify the values of the fields \texttt{nsapi.default-wifi-ssid} and \texttt{nsapi.default-wifi-password} by entering the name of your network and the associated password. This allows the STM32 board to connect to the internet via the WiFi network available exclusively for the IoT project.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/23.png}
+  \end{center}
+\end{figure}
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-2/wifi-connection-C++/source/main.cpp}{\faFolder\texttt{\ chapter-2/wifi-connection-C++/source/main.cpp}}
+\end{center}
+
+You can compile the code as provided and verify that the connection is successful. The window at the bottom of the application should return the following messages:
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/24.png}
+  \end{center}
+\end{figure}
+
+As you can see, the code is written in C++ with embedded methods, which makes the code not very easy to understand. We will replace the code with its version written in C.
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-2/wifi-connection-C/source/main.cpp}{\faFolder\texttt{\ chapter-2/wifi-connection-C/source/main.cpp}}
+\end{center}
+
+\hypertarget{general-code-routines-to-be-reused-everywhere}{%
+\subsubsection{5.3 General Code Routines (To Be Reused
+Everywhere)}\label{general-code-routines-to-be-reused-everywhere}}
+
+Here are the details of the new code for understanding. It includes several "standard" routines and application programs.
+
+\textbf{Inclusion of Necessary Headers}
+
+First, include the necessary headers for using \textit{MBed} and WiFi, define a few constants, and declare three global variables which are objects defining the network to use, the address of the site to be addressed, and the socket which is the communication buffer with the site.
+
+\begin{lstlisting}[style=CStyle]
+#include "mbed.h"
+#include "wifi_helper.h"
+
+static constexpr size_t MAX_NUMBER_OF_ACCESS_POINTS = 10;
+static constexpr size_t MAX_MESSAGE_RECEIVED_LENGTH = 100;
+static constexpr size_t REMOTE_PORT = 80; // standard HTTP port
+
+NetworkInterface *net;
+SocketAddress address;
+TCPSocket socket;
+\end{lstlisting}
+
+\textbf{WiFi Scan Routine}
+
+This first routine scans all available WiFi networks. It returns the number of available networks as well as the information related to each network. This routine is optional.
+
+\begin{lstlisting}[style=CStyle]
+void wifi_scan() {
+    WiFiInterface *wifi = net->wifiInterface();
+    WiFiAccessPoint ap[MAX_NUMBER_OF_ACCESS_POINTS];
+    /* scan call returns number of access points found */
+    int result = wifi->scan(ap, MAX_NUMBER_OF_ACCESS_POINTS);
+    if (result <= 0) {
+        printf("WiFiInterface::scan() failed with return value: %d\r\n", result);
+        return;
+    }
+    printf("%d networks available:\r\n", result);
+    for (int i = 0; i < result; i++) {
+        printf("Network: %s secured: %s BSSID: %hhX:%hhX:%hhX:%hhx:%hhx:%hhx RSSI: %hhd Ch: %hhd\r\n",
+               ap[i].get_ssid(), get_security_string(ap[i].get_security()),
+               ap[i].get_bssid()[0], ap[i].get_bssid()[1], ap[i].get_bssid()[2],
+               ap[i].get_bssid()[3], ap[i].get_bssid()[4], ap[i].get_bssid()[5],
+               ap[i].get_rssi(), ap[i].get_channel());
+    }
+    printf("\r\n");
+}
+\end{lstlisting}
+
+\textbf{Resolve Hostname Routine}
+
+The following routine resolves a network name, i.e., retrieves the IP address from the site's name. The address is directly placed in the global variable \texttt{address}.
+
+\begin{lstlisting}[style=CStyle]
+bool resolve_hostname(char *hostname) {
+    /* get the host address */
+    printf("\nResolve hostname %s\r\n", hostname);
+    nsapi_size_or_error_t result = net->gethostbyname(hostname, &address);
+    if (result != 0) {
+        printf("Error! gethostbyname(%s) returned: %d\r\n", hostname, result);
+        return false;
+    }
+    printf("%s address is %s\r\n", hostname, (address.get_ip_address() ? address.get_ip_address() : "None") );
+    return true;
+}
+\end{lstlisting}
+
+\textbf{Print Network Info Routine}
+
+This routine returns information about the network to which you will connect. To use this routine, you must have previously defined the address using \texttt{resolve\_hostname}.
+
+\begin{lstlisting}[style=CStyle]
+void print_network_info() {
+    /* print the network info */
+    SocketAddress a;
+    net->get_ip_address(&a);
+    printf("IP address: %s\r\n", a.get_ip_address() ? a.get_ip_address() : "None");
+    net->get_netmask(&a);
+    printf("Netmask: %s\r\n", a.get_ip_address() ? a.get_ip_address() : "None");
+    net->get_gateway(&a);
+    printf("Gateway: %s\r\n", a.get_ip_address() ? a.get_ip_address() : "None");
+}
+\end{lstlisting}
+
+\hypertarget{the-application}{%
+\subsubsection{5.4 The Application}\label{the-application}}
+
+The proposed application in this example is divided into three parts:
+two routines for making requests and reading from a site, and a main
+program that chains all the operations together.
+
+\textbf{Sending an HTTP Request:}
+
+The first routine sends an HTTP request.
+
+\begin{lstlisting}[style=CStyle]
+  bool send_http_request() {
+    /* loop until whole request sent */
+    const char buffer[] = "GET / HTTP/1.1\r\n"
+                          "Host: ifconfig.io\r\n"
+                          "Connection: close\r\n"
+                          "\r\n";
+    nsapi_size_t bytes_to_send = strlen(buffer);
+    nsapi_size_or_error_t bytes_sent = 0;
+
+    printf("\r\nSending message: \r\n%s", buffer);
+    while (bytes_to_send) {
+        bytes_sent = socket.send(buffer + bytes_sent, bytes_to_send);
+        if (bytes_sent < 0) {
+            printf("Error! socket.send() returned: %d\r\n", bytes_sent);
+            return false;
+        } else {
+            printf("sent %d bytes\r\n", bytes_sent);
+        }
+        bytes_to_send -= bytes_sent;
+    }
+    printf("Complete message sent\r\n");
+    return true;
+\end{lstlisting}
+
+\textbf{Receiving the HTTP Response:}
+
+The following routine receives the response.
+
+\begin{lstlisting}[style=CStyle]
+  bool receive_http_response() {
+    char buffer[MAX_MESSAGE_RECEIVED_LENGTH];
+    int remaining_bytes = MAX_MESSAGE_RECEIVED_LENGTH;
+    int received_bytes = 0;
+    /* loop until there is nothing received or we've ran out of buffer space */
+    nsapi_size_or_error_t result = remaining_bytes;
+    while (result > 0 && remaining_bytes > 0) {
+        result = socket.recv(buffer + received_bytes, remaining_bytes);
+        if (result < 0) {
+            printf("Error! socket.recv() returned: %d\r\n", result);
+            return false;
+        }
+        received_bytes += result;
+        remaining_bytes -= result;
+    }
+    /* the message is likely larger but we only want the HTTP response code */
+    printf("received %d bytes:\r\n%.*s\r\n\r\n", received_bytes, strstr(buffer, "\n") - buffer, buffer);
+    return true;
+  }
+\end{lstlisting}
+
+\hypertarget{general-part-of-main.cpp}{%
+\subsubsection{5.5 General Part of
+main.cpp}\label{general-part-of-main.cpp}}
+
+The beginning is relatively general as it performs network connection
+operations.
+
+\begin{lstlisting}[style=CStyle]
+int main() {
+    printf("\r\nStarting socket demo\r\n\r\n");
+    // Get the default network interface instance
+    net = NetworkInterface::get_default_instance();
+    if (!net) {
+        printf("Error! No network interface found.\r\n");
+        return -1;
+    }
+
+    // If a WiFi interface is available, perform a quick network scan
+    // to display visible access points
+    // Comment out the code if it blocks at this step
+    if (net->wifiInterface()) {
+        wifi_scan();
+    }
+
+    // Connect to the network
+    printf("Connecting to the network...\r\n");
+    nsapi_size_or_error_t result = net->connect();
+    if (result != 0) {
+        printf("Error! net->connect() returned: %d\r\n", result);
+        return -1;
+    }
+
+    // Display network information (IP address, netmask, and gateway)
+    print_network_info();
+
+    // Check if the host can be found on the network
+    char host[] = "ifconfig.io";
+    if (!resolve_hostname(host)) {
+        return -1;
+    }
+
+    // Open the socket to allocate necessary resources
+    result = socket.open(net);
+    if (result != 0) {
+        printf("Error! socket.open() returned: %d\r\n", result);
+        return -1;
+    }
+
+    // Set the port to use for the connection
+    address.set_port(REMOTE_PORT);
+
+    // Now we need to open a connection via a socket
+    printf("Opening connection to remote port %d\r\n", REMOTE_PORT);
+    result = socket.connect(address);
+    if (result != 0) {
+        printf("Error! socket.connect() returned: %d\r\n", result);
+        return -1;
+    }
+}
+\end{lstlisting}
+
+\hypertarget{specific-part-of-main.cpp}{%
+\subsubsection{5.6 Specific Part of
+main.cpp}\label{specific-part-of-main.cpp}}
+
+This last part is specific to the application. Here we call the two
+routines \texttt{send\_http\_request} and
+\texttt{receive\_http\_response}.
+
+\begin{lstlisting}[style=CStyle]
+  // Now we can send a request and receive an HTTP response
+  if (!send_http_request()) {
+      return -1;
+  }
+  if (!receive_http_response()) {
+      return -1;
+  }
+  // End of demonstration
+  printf("Demo concluded successfully \r\n");
+  return 0;
+  }
+\end{lstlisting}
+
+After compiling your \texttt{main.cpp}, download the executable of the
+program into the program memory space of your STM32 board. You can view
+the result printed by \texttt{printf} using the communication window of
+\textit{MBed Studio}, which will show either the transfers made or the
+characteristics of your TCP-IP link (IP address, MAC, gateway).
+
+\hypertarget{getting-started-with-thingspeak}{%
+\subsection{6. Getting Started with
+ThingSpeak}\label{getting-started-with-thingspeak}}
+
+In this final step, we will update our previous code to establish
+communication with ThingSpeak, allowing us to remotely visualize the
+sensor data graphically, thus opening up new possibilities for your
+projects.
+
+\hypertarget{setting-up-a-data-collection-server-cloud}{%
+\subsubsection{6.1 Setting Up a Data Collection Server
+(Cloud)}\label{setting-up-a-data-collection-server-cloud}}
+
+There are several IoT platforms dedicated to data collection. The most
+popular ones are Google Cloud IoT Core, Amazon AWS IoT Core, and IBM
+Watson IoT Platform. Access to these platforms' services is paid, and
+the free offers they provide are limited in time. These three solutions
+are easy to implement and adopted by a large community, and they have
+abundant literature of usage examples.
+
+The ThingSpeak platform by MathWorks and Ubidots are alternatives to the
+first three. The capabilities offered by these two solutions are
+sufficient for the scale of your project. The following describes the
+setup of the ThingSpeak solution.
+
+ThingSpeak is an open data platform for the Internet of Things. Your
+device or application can communicate with ThingSpeak using a RESTful
+API (Fig. \ref{fig:thingspeak}). You can either keep your data private or make it
+public. Moreover, you can use ThingSpeak to analyze and act on your
+data. ThingSpeak provides an online text editor for analyzing and
+visualizing data using MATLAB (also by MathWorks). You can also perform
+actions such as running regularly scheduled MATLAB code or sending a
+tweet when your data exceeds a defined threshold. The platform's
+advantages lie in performing more complex operations on datasets (via
+MATLAB tools) and more advanced customization of visualized graphs.
+Using such a platform can be relevant if you want to perform complex
+processing of received raw data, and this for free.
+
+At the heart of ThingSpeak is a time-series database. ThingSpeak
+provides users with free storage of time-series data in channels. Each
+channel can include up to eight data fields.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/ThingSpeak.png}
+    \caption{Description of the communication structure via ThingSpeak.}
+    \label{fig:thingspeak}
+  \end{center}
+\end{figure}
+
+To use ThingSpeak, follow these steps:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Go to the website:
+  \url{https://thingspeak.com/}
+\item
+  Create an account (it's the same account as MATLAB if you have one).
+\item
+  After creating the account, create a Channel (click New Channel) in the Channels/My Channels menu. This will store your transmitted data.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-4cm\relax,keepaspectratio]{images/25.png}
+    \end{center}
+  \end{figure}
+
+\item
+  Specify your Channel attributes:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Name: StmWifi (in the chosen example below)
+  \item
+    Fill in the Field fields with the names of the variables used (e.g.,
+    CaptX, CaptY, etc.), field1: CaptX, field2: CaptY, among others
+    according to your sensors/application.
+  \item
+    Specify if your Channel is public or private (data confidentiality).
+  \item
+    Save your Channel by clicking Save Channel.
+
+    \begin{figure}[H]
+      \begin{center}
+        \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/26.png}
+      \end{center}
+    \end{figure}
+  \end{itemize}
+\item
+  Identify your API Key (API keys menu of your channel). This key is
+  necessary for any communication with the configured Channel on the
+  ThingSpeak platform. The Write API Key will send information from the
+  STM32 board to the channel, and the Read API Key will retrieve
+  data/instructions to the board. These keys are uniquely associated
+  with the connected object you created on the ThingSpeak platform.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/27.png}
+    \end{center}
+  \end{figure}
+\item
+  The configuration of your ThingSpeak storage channel (Cloud) is
+  complete. The next steps continue on \textit{MBed OS} to create your
+  program that will run on the STM32 board.
+\end{enumerate}
+
+\hypertarget{creating-the-main-communication-file}{%
+\subsubsection{6.2 Creating the Main Communication
+File}\label{creating-the-main-communication-file}}
+
+In Chapter 3, you created a project allowing the board to connect to the
+WIFI network. You will start from this project and complete it. The
+following describes the steps necessary to develop a communication
+routine with ThingSpeak via a Wifi network.
+
+You will modify the \texttt{main.cpp} file as follows:
+
+At the beginning of the project, add:
+
+\begin{itemize}
+\tightlist
+\item
+  The read and write access keys to your ThingSpeak channel.
+\item
+  Analog inputs \texttt{analog\_value0} and \texttt{analog\_value1}.
+\item
+  Buffers for communication (character arrays).
+\item
+  Variables that contain sensor data (here potentiometers).
+\end{itemize}
+
+\begin{lstlisting}[style=CStyle]
+  NetworkInterface *net;
+  SocketAddress address;
+  TCPSocket socket;
+
+  #define thingspeak_APIkey_write "GS80MF8P8K3S5DD4" // put your channel's write API key
+  #define thingspeak_APIkey_read "QEM41UTCNZQ03M0E"  // put your channel's read API key
+
+  AnalogIn analog_value0(A0);
+  AnalogIn analog_value1(A1);
+
+  nsapi_error_t response;
+
+  char sbuffer[256];
+  char message[64];
+  float captX;
+  float captY;
+  float captZ;
+\end{lstlisting}
+
+The following part of \texttt{main.cpp} does not change. Resume from the
+moment of defining the site's address as follows:
+
+\begin{lstlisting}[style=CStyle]
+  char hostname[] = "api.thingspeak.com";
+  if (!resolve_hostname(hostname)) {
+      return -1;
+  }
+  address.set_port(REMOTE_PORT);
+\end{lstlisting}
+
+Then enter an infinite loop. Start by opening a socket and connecting to
+the ThingSpeak site address:
+
+\begin{lstlisting}[style=CStyle]
+  while (true) {
+    // We now need to open a connection to a socket
+    result = socket.open(net);
+    if (result != 0) {
+        printf("Error! socket.open() returned: %d\r\n", result);
+        return -1;
+    }
+    printf("\r\n\r\nOpening connection to remote port %d\r\n", REMOTE_PORT);
+    result = socket.connect(address);
+    if (result != 0) {
+        printf("Error! socket.connect() returned: %d\r\n", result);
+        return -1;
+  }
+\end{lstlisting}
+
+Read the value provided by the sensors:
+
+\begin{lstlisting}[style=CStyle]
+  captX = analog_value0.read();
+  captY = analog_value1.read();
+  captZ = 0;
+\end{lstlisting}
+
+Create a message from the previous data to send to ThingSpeak:
+
+\begin{lstlisting}[style=CStyle]
+  // message to be transmitted (sensor data)
+  sprintf(message, "{\"field1\": %0.2f, \"field2\": %0.2f, \"field3\": %0.2f}", captX, captY, captZ);
+  printf("Message = %s\r\n", message);
+  // Data transmission phase to ThingSpeak.com
+  sprintf(sbuffer, "GET /update?api_key=%s HTTP/1.1\r\nHost: api.thingspeak.com\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n%s", thingspeak_APIkey_write, (int)strlen(message), message);
+  printf("HTTP command %s\r\n", sbuffer);
+\end{lstlisting}
+
+Then verify that the request was received successfully:
+
+\begin{lstlisting}[style=CStyle]
+  printf("Sending HTTP request to thingspeak.com...\n");
+  nsapi_size_t size = strlen(sbuffer);
+  response = 0;
+  while (size) {
+      response = socket.send(sbuffer + response, size);
+      if (response < 0) {
+          printf("Error sending data: %d\n", response);
+          socket.close();
+          return -1;
+      } else {
+          size -= response;
+      }
+  }
+  printf("request sent to thingspeak.com...\n");
+\end{lstlisting}
+
+Next, wait to receive the response from the ThingSpeak site and display the received response:
+
+\begin{lstlisting}[style=CStyle]
+  // Receive a simple HTTP response and print out the response line
+  char rbuffer[64];
+  response = socket.recv(rbuffer, sizeof rbuffer);
+  if (response < 0) {
+      printf("Error receiving data: %d\n", response);
+  } else {
+      printf("recv %d [%.*s]\n", response, strstr(rbuffer, "\r\n") - rbuffer, rbuffer);
+  }
+\end{lstlisting}
+
+Finally, close the socket and sleep for 5 seconds:
+
+\begin{lstlisting}[style=CStyle]
+  // Close the socket to return its memory and bring down the network interface
+  socket.close();
+  ThisThread::sleep_for(5000ms); // wait for 5 seconds
+}
+net->disconnect();
+
+return 0;
+}
+\end{lstlisting}
+
+You can now compile your code and execute it. You can view the result
+printed by \texttt{printf} in the communication window, either the
+transfers made or the characteristics of your TCP-IP link (IP address,
+MAC, gateway).
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-3cm\relax,keepaspectratio]{images/28.png}
+  \end{center}
+\end{figure}
+
+Furthermore, your data can be directly viewed through the ThingSpeak
+interface.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/29.png}
+  \end{center}
+\end{figure}
+
+For advanced data processing, you will find a set of tools in the MATLAB
+Analysis and MATLAB Visualization categories. Before going further in
+your project, modify the API to retrieve data from ThingSpeak to the
+STM32 board.
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-2/cloud-connection/source/main.cpp}{\faFolder\texttt{\ chapter-2/cloud-connection/source/main.cpp}}
+\end{center}
+
+\hypertarget{chapter-3-introduction-to-STM32CubeIDE}{%
+\section{Chapter 3: Introduction to
+STM32CubeIDE}\label{chapter-3-introduction-to-STM32CubeIDE}}
+
+The integrated development environment (IDE) developed by
+STMicroelectronics previously consisted of several separate software
+tools, such as \textit{STM32CubeIDE} for writing code,
+\textit{STM32CubeMX} for configuring the microcontroller, and
+\textit{STM32CubeProgrammer} for programming and debugging it. Today,
+all these tools are integrated into \textit{STM32CubeIDE}, simplifying the
+product line and creating a single tool capable of performing all the
+necessary tasks to develop your project.
+
+In this section, we will discuss the basic configurations of a project
+using \textit{STM32CubeIDE}, as it has a completely different interface from \textit{MBed
+OS}. Additionally, we will use the second board mentioned earlier, the
+\texttt{B-U585I-IOT02A}, to prepare for the following chapters where we
+will need a board with greater processing power and memory. We will
+initially demonstrate a simple project and then create a TCP
+communication protocol with the ThingSpeak server.
+
+\hypertarget{the-basics-of-STM32CubeIDE}{%
+\subsection{1. The Basics of
+STM32CubeIDE}\label{the-basics-of-STM32CubeIDE}}
+
+For this first example, we will simply make an LED blink. Although
+simple, this example will be very useful for any other project
+configuration you might undertake. Follow these steps:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Download and install the latest version of the software (install
+  directly on your C: drive, before the \texttt{users} folder to avoid
+  path issues in your projects):
+  \href{https://www.st.com/en/development-tools/STM32CubeIDE.html}{\texttt{STM32CubeIDE\ Download}}.
+\item
+  Open \textit{STM32CubeIDE}. A window will appear for you to choose your
+  workspace directory. Just click \textbf{Launch} to use the default.
+\item
+  Create a new project via \textbf{File -\textgreater{} New
+  -\textgreater{} STM32 Project}.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/37.png}
+    \end{center}
+  \end{figure}
+\item
+  A new window will appear for you to name your project and choose some
+  other options. Name it as you wish and leave the rest as default,
+  especially the choice of the C language.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/61.png}
+    \end{center}
+  \end{figure}
+\item
+  Next, we need to select whether we are configuring only a
+  microcontroller or an STMicroelectronics board that already has some
+  peripherals. Since we are working with the \texttt{B-U585I-IOT02A}, we
+  will select it in the \textbf{Board Selector} and search for its part
+  number. After clicking \textbf{Finish}, you will be asked if you would
+  like to initialize the peripherals of your board. Click \textbf{Yes}
+  to pre-configure the various modules connected to the
+  microcontroller's pins, making our work easier as we won't have to
+  define them one by one.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/43.png}
+    \end{center}
+  \end{figure}
+\item
+  You will then see your development environment, with the central
+  window being the \textit{STM32CubeMX} showing your microcontroller chip and its
+  pins.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/40.png}
+    \end{center}
+  \end{figure}
+\end{enumerate}
+
+As stated by STMicroelectronics, ``\textit{STM32CubeMX} is a graphical
+tool that allows a very easy configuration of STM32 microcontrollers and
+microprocessors, as well as the generation of the corresponding
+initialization C code for the Arm® Cortex®-M core or a partial Linux®
+Device Tree for Arm® Cortex®-A core, through a step-by-step process.''
+
+This software is used to graphically configure pins, timers, clocks,
+connection types, communication protocols, and pre-installed packages,
+among many other functions found on the left side of the window, as
+shown in the image below.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/41.png}
+  \end{center}
+\end{figure}
+
+After this pre-configuration, it is possible to generate partially
+written code containing the initializations for all selected
+peripherals, defined pins, and necessary libraries, making the creation
+of your projects much easier as you won't need to write each line
+manually and can focus on the main part of your code.
+
+When we created our project, all peripherals were initialized, which is
+why some pins are already pre-configured (green pins).
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/43.png}
+  \end{center}
+\end{figure}
+
+Now, let's start configuring our microcontroller so we can use what we
+define here in our code.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  For our first example of blinking an LED present on the board, we
+  would define one of the microcontroller pins as \texttt{output} and
+  name it to make it easier to read in our code. However, since we
+  initialized these components, the LED is already configured on pin
+  \texttt{PH6} (left-click on the pin to access these definitions), as
+  well as its label (right-click on the pin and select
+  \texttt{Enter\ User\ Label}), which you can change to whatever name
+  you want.
+
+  \begin{figure}[H]
+    \centering
+    \subfigure{\includegraphics[width=0.27\textwidth]{images/63.png}}
+    \subfigure{\includegraphics[width=0.3075\textwidth]{images/64.png}}
+  \end{figure}
+\item
+  Now we will configure the clock of our microcontroller, which will be
+  used by many of its tools. To do this, select the top \textbf{Clock
+  Configuration} tab. The large amount of information in this window may
+  seem overwhelming initially, but we will only modify a few parameters.
+  First, select the \texttt{High-Speed\ Internal\ Clock} (HSI) in the
+  \texttt{PLL\ Source\ Mux}, set \texttt{HCLK\ (MHz)} to the maximum
+  allowed (160 MHz), press Enter, and wait for the software to find the
+  best solution for your configuration, which should look similar to the
+  values on the right in the photo below (red box 4).
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/48.png}
+    \end{center}
+  \end{figure}
+\item
+  After this, we can save our project with \texttt{Ctrl\ +\ S} or
+  \textbf{File -\textgreater{} Save}, and a window will appear asking if
+  you would like to generate the automatic code for your configurations.
+  Click \textbf{Yes}. If this window does not appear, you can also click
+  on the \textbf{Device Configuration Tool Code Generation} item in the
+  toolbar at the top of the screen.
+\end{enumerate}
+
+The \textit{STM32CubeIDE} can auto-generate parts of your code based on
+the configuration you did previously in \textit{STM32CubeMX}, such as if
+a pin is an output or input, the type of communication used, and many
+other parameters. The generated code includes various comments defining
+the safe zones for users to write their code, which are delimited by
+\texttt{USER\ CODE\ BEGIN} and \texttt{USER\ CODE\ END}, as shown in the
+image below where these areas were highlighted. If the user writes
+outside these zones, regenerating the code will retain only the lines
+within the safe zones, and the rest will be deleted. Therefore, always
+write within the designated areas, which is not difficult as there are
+multiple such areas in different parts of the code.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/42.png}
+  \end{center}
+\end{figure}
+
+Now, just add the necessary code in these safe zones. To make the LED
+blink, place the following lines inside the loop of the \texttt{while}
+present in \texttt{main()}:
+
+\begin{lstlisting}[style=CStyle]
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+      /* USER CODE END WHILE */
+      HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+      HAL_Delay(1000);
+      /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
+\end{lstlisting}
+
+Finally, build your project in \textbf{Project -\textgreater{} Build
+Project} and then upload it to the board. Connect the board to your
+computer and then go to \textbf{Run -\textgreater{} Run} and observe the
+red LED blinking on your board. You can also implement the green LED in
+your project, as it is already configured.
+
+As mentioned earlier, \textit{STM32CubeIDE} is not very
+``beginner-friendly'' due to the numerous functions, configurations, and
+parameters without simplified explanations. However, it is a powerful
+tool that allows full control over the microcontroller used, without
+needing to work directly with registers, and can speed up the coding
+process due to the automatic code generation.
+
+For more in-depth information and a simpler, straightforward language, I
+strongly recommend Mitch Davis's YouTube channel, especially the video
+\href{https://www.youtube.com/watch?v=Hffw-m9fuxc\&list=WL\&index=30}{\texttt{STM32\ Guide\ \#2:\ Registers\ +\ HAL\ (Blink\ example)}},
+along with other videos in the same series.
+
+You can also access the
+\href{https://www.st.com/en/development-tools/STM32CubeIDE.html\#documentation}{\texttt{STM32CubeIDE\ Documentation}}
+for more technical details about the software.
+
+Here is the folder of this project:
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-3/B-U585I-IOT02A_blink_led}{\faFolder\texttt{\ chapter-3/B-U585I-IOT02A\_blink\_led}}
+\end{center}
+
+\hypertarget{timer-and-trigger-management-in-STM32CubeIDE-projects}{%
+\subsection{2. Timer and Trigger Management in STM32CubeIDE
+Projects}\label{timer-and-trigger-management-in-STM32CubeIDE-projects}}
+
+In embedded systems, especially when working with microcontrollers like
+the STM32, understanding timers and triggers is crucial. Timers are
+integral components that allow microcontrollers to perform operations at
+precise intervals, which is essential for tasks such as creating delays,
+measuring time intervals, generating PWM signals, and managing
+time-sensitive events.
+
+\hypertarget{understanding-stm32-timers-and-triggers}{%
+\subsubsection{2.1 Understanding STM32 Timers and
+Triggers}\label{understanding-stm32-timers-and-triggers}}
+
+\textbf{Timers:}
+
+Timers in microcontrollers are essentially counters that increment or
+decrement at a specific frequency, derived from the system clock. The
+STM32 microcontrollers feature multiple timers, each with unique
+capabilities and configurations. The key parameters and features of
+timers include:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Counter Mode}: Timers can operate in different modes such as
+  up-counting, down-counting, or center-aligned mode. In up-counting
+  mode, the timer counts from 0 to a predefined value, while in
+  down-counting, it counts down to 0. Center-aligned mode combines both,
+  which is useful for PWM generation.
+\item
+  \textbf{Prescaler}: The prescaler divides the system clock to slow
+  down the timer frequency. This allows for more extended timing
+  intervals and precise control over the timer's operation.
+\item
+  \textbf{Auto-Reload Register (ARR)}: This register determines the
+  period of the timer. When the counter reaches the value in the ARR, it
+  resets to 0 (or the predefined start value), triggering an event if
+  configured.
+\item
+  \textbf{Interrupts}: Timers can generate interrupts when they reach
+  specific values, such as the overflow or underflow points. These
+  interrupts can be used to execute specific functions at regular
+  intervals, essential for time-critical applications.
+\end{enumerate}
+
+\textbf{Triggers:}
+
+Triggers are signals or events that cause the timer to start, stop,
+reset, or capture the current counter value. In the STM32
+microcontrollers, various trigger sources can be used to control timers:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Internal Triggers}: These are signals generated within the
+  microcontroller, such as other timers or specific events from
+  peripherals like ADCs or DACs. For instance, Timer 1 can trigger Timer
+  2, creating synchronized events between different timers.
+\item
+  \textbf{External Triggers}: These come from external pins or hardware
+  events outside the microcontroller. An external button press, for
+  instance, can start or reset a timer.
+\item
+  \textbf{Software Triggers}: The timer can also be controlled
+  programmatically through software commands. This is useful for precise
+  control over the timing without relying on external events.
+\end{enumerate}
+
+\textbf{Practical Applications:}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Delay Generation}: Timers can create precise delays by
+  configuring the counter and using interrupts to execute code at set
+  intervals.
+\item
+  \textbf{PWM Generation}: Timers are often used to generate PWM signals
+  for motor control, LED dimming, and communication protocols.
+\item
+  \textbf{Event Timing}: Timers can measure the time between events,
+  which is crucial in applications requiring precise time measurements,
+  such as pulse width measurement.
+\item
+  \textbf{Periodic Task Execution}: Using timer interrupts, tasks can be
+  executed periodically, essential for real-time operating systems and
+  other time-critical applications.
+\end{itemize}
+
+To grasp the fundamentals of STM32 timers and their configurations,
+refer to the following resources:
+
+\begin{itemize}
+\tightlist
+\item
+  \href{https://youtu.be/VfbW6nfG4kw?si=4GEUskWYxO0k2GLK}{\texttt{Getting\ Started\ with\ STM32\ and\ Nucleo\ Part\ 6:\ Timers\ and\ Timer\ Interrupts}}
+\item
+  \href{https://deepbluembedded.com/stm32-timers-tutorial-hardware-timers-explained/}{\texttt{STM32\ Timers\ Tutorial\ -\ Deep\ Blue\ Embedded}}
+\end{itemize}
+
+\hypertarget{configuring-stm32-timers-in-stm32cubemx}{%
+\subsubsection{2.2 Configuring STM32 Timers in
+STM32CubeMX}\label{configuring-stm32-timers-in-stm32cubemx}}
+
+\textit{STM32CubeMX} is a graphical tool that simplifies configuring STM32
+microcontrollers, including timers. Follow these steps to configure
+timers for your project:
+
+\textbf{Step-by-Step Configuration:}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Open STM32CubeMX}: Launch \textit{STM32CubeMX} and start a new project
+  or open an existing one.
+\item
+  \textbf{Select Timer Peripheral}: Navigate to the ``Timers'' tab and
+  choose the timer peripheral you intend to configure (e.g., TIM6).
+\item
+  \textbf{Configure Timer Parameters}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Clock Source}: Select the source for the timer clock (e.g.,
+    internal clock, external clock).
+  \item
+    \textbf{Prescaler}: Set the prescaler value to adjust the timer's
+    counting frequency.
+  \item
+    \textbf{Mode and Configuration}: Choose the desired operating mode
+    (e.g., PWM Generation, Capture/Compare).
+
+    \begin{figure}[H]
+      \begin{center}
+        \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/56.png}
+      \end{center}
+    \end{figure}
+  \end{itemize}
+\item
+  \textbf{Pinout and Configuration}: Assign pins associated with timer
+  functions (e.g., PWM output pins).
+\item
+  \textbf{Generate Code}: Once configurations are complete, click
+  \textbf{Project}, then \textbf{Generate Code} to generate initialization code
+  based on your settings.
+\end{enumerate}
+
+\hypertarget{pwm-signal-generation-example}{%
+\subsubsection{2.3 PWM Signal Generation
+Example}\label{pwm-signal-generation-example}}
+
+Pulse Width Modulation (PWM) signals are a fundamental feature in
+microcontroller applications, particularly when precise control over
+power delivery or signal generation is required. PWM signals are
+essentially digital signals that alternate between on and off states at
+a high frequency. The key parameter in a PWM signal is the duty cycle,
+which represents the proportion of time the signal is high (on) compared
+to the total period of the cycle.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/60.png}
+  \end{center}
+\end{figure}
+
+\textbf{PWM Configuration Steps:}
+
+Configuring PWM signals on STM32 microcontrollers using STMCubeMX is a
+straightforward process. First, you need to select the appropriate timer
+that will generate the PWM signals. STM32 microcontrollers typically
+come with several timers, each capable of generating multiple PWM
+signals (you must see in the datasheet which pin can be configured as
+PWM generator, because this can change from each MCU).
+
+Once you have selected the timer, the next step is to configure the PWM
+channels. In STMCubeMX, navigate to the timer configuration settings and
+enable the PWM mode for the desired channels. Here, you can specify the
+frequency of the PWM signal by setting the timer's prescaler and
+auto-reload register (ARR) values. The frequency is determined by the
+formula:
+
+\[
+    \text{PWM Frequency} = \frac{\text{Timer Clock}}{(\text{Prescaler} + 1) \times (\text{ARR} + 1)}
+\]
+
+After setting the frequency, you can configure the duty cycle for each
+PWM channel. The duty cycle is set by adjusting the compare register
+(CCR) value for each channel. The duty cycle percentage is calculated as
+follows:
+
+\[
+    \text{Duty Cycle (\%)} = \left( \frac{\text{Compare Value}}{\text{ARR}} \right) \times 100
+\]
+
+For example, if the ARR is set to 999 and the compare value is set to
+499, the duty cycle will be 50\%.
+
+Here is a simple configuration of a Timer as a PWM generator:
+
+\begin{itemize}
+\tightlist
+\item
+  Configure TIM3 or another suitable timer to operate in PWM mode with
+  CH1 (and also CH2 in the configuration below).
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/57.png}
+    \end{center}
+  \end{figure}
+
+\item
+  In Configuration, set the parameters you need for your application.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/58.png}
+    \end{center}
+  \end{figure}
+
+\item
+  Generate initialization code and integrate it into your project.
+\end{itemize}
+
+For a detailed walkthrough of configuring and using PWM with STM32
+timers, follow this example:
+
+\begin{itemize}
+\tightlist
+\item
+  \href{https://deepbluembedded.com/stm32-pwm-example-timer-pwm-mode-tutorial/}{\texttt{STM32\ PWM\ Example\ -\ Deep\ Blue\ Embedded}}
+\end{itemize}
+
+\hypertarget{handling-pwm-signals-with-deadtimes}{%
+\subsubsection{2.4 Handling PWM Signals with
+Deadtimes}\label{handling-pwm-signals-with-deadtimes}}
+
+Deadtimes are essential in many applications involving switching
+devices, such as in PWM generation for motor control or power inverters.
+Deadtime refers to a brief delay introduced between the turning off of
+one transistor and the turning on of another in switching circuits. This
+delay prevents two switches from being on simultaneously, which could
+lead to a direct short circuit through the power supply, potentially
+damaging the components or reducing their lifespan due to excessive
+current.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/59.png}
+  \end{center}
+\end{figure}
+
+\textbf{Configuring Deadtimes:}
+
+\begin{itemize}
+\tightlist
+\item
+  In \textit{STM32CubeMX}, navigate to the timer configuration.
+\item
+  Locate the deadtime settings under PWM Generation mode.
+\item
+  Set appropriate deadtime values to ensure safe operation of your
+  PWM-driven systems.
+\end{itemize}
+
+You can also see this tutorial from STMicroelectronics on how to
+configure deadtimes in you projects using a complementary PWM mode:
+
+\begin{itemize}
+\tightlist
+\item
+  \href{https://www.youtube.com/watch?v=rDaC2N-33Oo}{\texttt{Hands-On\ with\ STM32\ Timers:\ Dead-time\ Insertion\ in\ Complementary\ PWM\ Output}}
+\end{itemize}
+
+\hypertarget{connecting-to-thingspeak}{%
+\subsection{3. Connecting to
+ThingSpeak}\label{connecting-to-thingspeak}}
+
+In this section, we will demonstrate an application where a TCP/IP
+protocol is implemented between the board, which contains an integrated
+WiFi module, and the ThingSpeak server. This enables online data
+visualization and processing using MATLAB, similar to how it was used in
+section
+\protect\hyperlink{getting-started-with-thingspeak}{\texttt{6}} of
+Chapter 2.
+
+We will start with a project created by \texttt{STMicroelectronics}
+available on the following \texttt{GitHub} link:
+\href{https://github.com/STMicroelectronics/STM32CubeU5/tree/main}{\texttt{https://github.com/STMicroelectronics/STM32CubeU5}}.
+
+In the mentioned repository, you will find the \texttt{Readme} which
+outlines the correct method for downloading the file. If this procedure
+is not followed correctly, you will not be able to build your project
+due to version and file location issues. Following the procedure, you
+should clone the repository using the following command in the terminal
+within your \textit{STM32CubeIDE} project folder. Choose the location
+carefully, as projects created with \textit{STM32CubeIDE} cannot simply
+be copied, pasted, or moved due to the need for correctly defined file
+paths:
+
+\begin{lstlisting}[style=BashStyle]
+  git clone --recursive https://github.com/STMicroelectronics/STM32CubeU5.git
+\end{lstlisting}
+
+Additionally, we must use the most updated firmware version available at
+the moment, which for me is \texttt{v1.5.0}. This can be verified in the
+\href{https://htmlpreview.github.io/?https://github.com/STMicroelectronics/STM32CubeU5/blob/master/Release_Notes.html}{\texttt{Release\ Notes\ for\ STM32CubeU5\ Firmware\ Package}}.
+Replace X.Y.Z with your version and run this command inside the
+\texttt{STM32CubeU5} folder you just cloned:
+
+\begin{lstlisting}[style=BashStyle]
+  git checkout vX.Y.Z # Specify the targeted vX.Y.Z version
+\end{lstlisting}
+
+In the \texttt{STM32CubeU5} repository, there are examples and
+demonstration projects using all U5 series boards developed by
+\texttt{STMicroelectronics}, applying various libraries and integrated
+modules of the boards. One of these projects utilizes the
+\texttt{MXChip} WiFi module on the \texttt{B-U585I-IOT02A} for TCP/IP
+communication with a server.
+
+We will use this base project, modifying the server to
+\texttt{ThingSpeak} and sending a fixed value that can be visualized on
+the website. The project is located in the following path in the folder
+where you downloaded it:
+\texttt{STM32CubeU5/Projects/B-U585I-IOT02A/Applications/NetXDuo/Nx\_UDP\_Echo\_Client}.
+
+We will not provide the complete project due to the mentioned issue of
+file path incompatibility, but we will include the files that will be
+modified in the following folder:
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-3/STM32CubeU5}{\faFolder\texttt{\ chapter-3/STM32CubeU5}}
+\end{center}
+
+\hypertarget{updating-the-wifi-module-firmware}{%
+\subsubsection{3.1 Updating the WiFi Module
+Firmware}\label{updating-the-wifi-module-firmware}}
+
+Before starting the project, you need to update the firmware of the
+\texttt{EMW3080} module, the \texttt{MXChip} WiFi module on our board,
+to version \texttt{2.3.4} found here:
+\href{setup/en.x-wifi-emw3080b.zip}{\texttt{setup/en.x-wifi-emw3080b.zip}}.
+
+Download the file and follow these steps:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Extract the file.
+\item
+  Navigate to
+  \texttt{en.x-wifi-emw3080b\textbackslash{}V2.3.4\textbackslash{}SPI\textbackslash{}EMW3080update\_B-U585I-IOT02A-RevC\_V2.3.4\_SPI.bin}.
+\item
+  Connect your \texttt{B-U585I-IOT02A} board to your computer via USB.
+\item
+  Drag the file to the disk drive that appears on your computer upon
+  connecting the board. In my case, it is \texttt{DIS\_U585AI}.
+\item
+  Open a serial terminal, such as \textit{PuTTY} or the \textit{MBed}
+  terminal used earlier, with the following settings: baud rate 115200
+  bits/s, 8-bit data, no parity, 1 stop bit, no flow control (some
+  programs only require the baud rate, like \textit{MBed}).
+\item
+  Restart the board by pressing the black button and monitor the
+  terminal to see if the firmware enters boot mode.
+\item
+  You will see a message similar to the one below (if you don't see it,
+  reinitialize your terminal and after do the same to the board). Simply
+  press the blue user button on the board and wait for the update to
+  apply. It might take a while to initialize, so be patient.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-3cm\relax,keepaspectratio]{images/52.png}
+    \end{center}
+  \end{figure}
+\end{enumerate}
+
+Now, your module's firmware is updated, and you can proceed with the
+tutorial.
+
+\hypertarget{understanding-the-base-project-and-its-configurations}{%
+\subsubsection{3.2 Understanding the Base Project and Its
+Configurations}\label{understanding-the-base-project-and-its-configurations}}
+
+Before modifying the original project for our application, let's first
+understand how it works. We can add the project to our \textit{STM32CubeIDE} by
+navigating to
+\texttt{Projects/B-U585I-IOT02A/Applications/NetXDuo/Nx\_UDP\_Echo\_Client/\textit{STM32CubeIDE}}
+and double-clicking the \texttt{.cproject} file or by going to
+\textit{STM32CubeIDE}, selecting \textbf{File -\textgreater{} Open project from
+file system}, navigating to the directory containing the
+\texttt{.cproject} file, and clicking \texttt{Finish}.
+
+The \texttt{Nx\_TCP\_Echo\_Client} application serves as a practical
+example of utilizing the Azure RTOS \textit{NetX/NetXDuo} stack to create a TCP
+client that communicates with a remote server. This example is
+structured to help developers understand the implementation of TCP/IP
+communication in an embedded system using STM32 microcontrollers.
+
+\textbf{Overview of the Project:}
+
+By opening the \texttt{.ioc} file, which is the \textit{STM32CubeMX}
+configuration file for graphical pin and peripheral configuration, or
+simply examining the files in the project folders, you will notice the
+use of two main packages. These packages bring various functionalities
+and libraries to the project, enabling the implementation of diverse
+applications. The packages used here are \textit{ThreadX} and
+\textit{NetXDuo}, where the latter depends on the former to function
+properly.
+
+\textbf{ThreadX} is a real-time operating system (RTOS) designed for
+embedded systems. It provides essential services such as thread
+management, inter-thread communication, and synchronization, ensuring
+efficient task execution and resource management.
+
+\textbf{NetX/NetXDuo} is a high-performance TCP/IP network stack
+tailored for \textit{ThreadX}. It facilitates robust network communication in
+embedded applications, supporting both IPv4 and IPv6 protocols. \textit{NetXDuo}
+extends the capabilities of \textit{NetX} with enhanced features.
+
+This project integrates \textit{ThreadX} and \textit{NetX/NetXDuo} to create a TCP echo
+client. It demonstrates how these components can be effectively utilized
+to develop sophisticated networked applications on STM32
+microcontrollers. The objective is to implement a TCP client that sends
+messages to a server and receives corresponding responses, which are
+then printed on a terminal.
+
+The main codes for this application that we will analyze are the ones
+present in:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{Nx\_TCP\_Echo\_Client/Core/Inc/app\_threadx.h}
+\item
+  \texttt{Nx\_TCP\_Echo\_Client/NetXDuo/App/app\_netxduo.c}
+\end{itemize}
+
+As you can see, all the implemented code will be done outside of
+\texttt{main.c} since we will be working with threads. The code for the
+threads can be implemented in \texttt{app\_threadx.c} or
+\texttt{app\_netxduo.c}. This is evident from the image below, where
+once the code reaches \texttt{main()}, the function
+\texttt{MX\_ThreadX\_Init()} is called, and the scheduler takes control
+from there, so the code never reaches the \texttt{while} loop.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/53.png}
+  \end{center}
+\end{figure}
+
+Therefore, if you want to create your own application after this
+tutorial, you should implement it within one of the already created
+threads or create your own, taking into account the communication and
+synchronization between the threads. Also, we suggest that you use this
+project as a base for your own, especially if you plan to use the TCP
+protocol in your program. Start with this project and add your libraries
+and code, because there is a significant dependency on files, libraries,
+and drivers to work with this WiFi module.
+
+\textbf{Initialization and Thread Creation:}
+
+The application's main entry point is the
+\texttt{tx\_application\_define()} function, which \textit{ThreadX} calls during
+kernel start-up. This function is responsible for creating all the
+necessary \textit{NetX} resources and initializing the system. The sequence of
+initialization includes creating a packet pool, setting up an IP
+instance, enabling various protocols (ARP, ICMP, UDP, and TCP), and
+creating a DHCP client.
+
+In the provided codes, the \texttt{MX\_ThreadX\_Init()} function starts
+the \textit{ThreadX} kernel by calling \texttt{tx\_kernel\_enter()}, initiating
+the kernel operations. Then, \texttt{MX\_NetXDuo\_Init()} handles the
+initialization of \textit{NetX} resources.
+
+\begin{lstlisting}[style=CStyle]
+  void MX_ThreadX_Init(void) {
+    tx_kernel_enter();
+  }
+\end{lstlisting}
+
+In \texttt{MX\_NetXDuo\_Init()}, memory for various components is
+allocated, and the system is initialized. For instance, the packet pool
+is created using \texttt{nx\_packet\_pool\_create()}, and the IP
+instance is created with \texttt{nx\_ip\_create()}.
+
+\begin{lstlisting}[style=CStyle]
+  ret = nx_packet_pool_create(&AppPool, "Main Packet Pool", PAYLOAD_SIZE, pointer, NX_PACKET_POOL_SIZE);
+  ret = nx_ip_create(&IpInstance, "Main Ip instance", NULL_ADDRESS, NULL_ADDRESS, &AppPool, nx_driver_emw3080_entry, pointer, 2 * DEFAULT_MEMORY_SIZE, DEFAULT_PRIORITY);
+\end{lstlisting}
+
+\textbf{Thread Execution:}
+
+Two threads are created: \texttt{AppMainThread} and
+\texttt{AppTCPThread}, both having the same priority.
+\texttt{AppMainThread} starts automatically (\texttt{TX\_AUTO\_START}),
+while \texttt{AppTCPThread} is started later (\texttt{TX\_DONT\_START}).
+
+\begin{lstlisting}[style=CStyle]
+  ret = tx_thread_create(&AppMainThread, "App Main thread", App_Main_Thread_Entry, 0, pointer, 2 * DEFAULT_MEMORY_SIZE, DEFAULT_PRIORITY, DEFAULT_PRIORITY, TX_NO_TIME_SLICE, TX_AUTO_START);
+  ret = tx_thread_create(&AppTCPThread, "App TCP Thread", App_TCP_Thread_Entry, 0, pointer, 2 * DEFAULT_MEMORY_SIZE, DEFAULT_PRIORITY, DEFAULT_PRIORITY, TX_NO_TIME_SLICE, TX_DONT_START);
+\end{lstlisting}
+
+\texttt{AppMainThread} is responsible for starting the DHCP client,
+waiting for the IP address resolution, and then resuming
+\texttt{AppTCPThread}.
+
+\begin{lstlisting}[style=CStyle]
+  static VOID App_Main_Thread_Entry(ULONG thread_input) {
+    nx_ip_address_change_notify(&IpInstance, ip_address_change_notify_callback, NULL);
+    nx_dhcp_start(&DHCPClient);
+    tx_semaphore_get(&Semaphore, TX_WAIT_FOREVER);
+    tx_thread_resume(&AppTCPThread);
+    tx_thread_relinquish();
+  }
+\end{lstlisting}
+
+\texttt{AppTCPThread} handles the TCP communication. It creates a TCP
+socket, connects to a remote server, sends a series of messages, and
+receives responses. Upon successful communication, it prints the
+responses to the terminal and toggles a green LED to indicate success.
+
+\begin{lstlisting}[style=CStyle]
+  static VOID App_TCP_Thread_Entry(ULONG thread_input) {
+    nx_tcp_socket_create(&IpInstance, &TCPSocket, "TCP Server Socket", NX_IP_NORMAL, NX_FRAGMENT_OKAY, NX_IP_TIME_TO_LIVE, WINDOW_SIZE, NX_NULL, NX_NULL);
+    nx_tcp_client_socket_bind(&TCPSocket, DEFAULT_PORT, NX_WAIT_FOREVER);
+    nx_tcp_client_socket_connect(&TCPSocket, TCP_SERVER_ADDRESS, TCP_SERVER_PORT, NX_WAIT_FOREVER);
+    while(count++ < MAX_PACKET_COUNT) {
+      // Packet allocation and sending
+      nx_packet_allocate(&AppPool, &data_packet, NX_TCP_PACKET, TX_WAIT_FOREVER);
+      nx_packet_data_append(data_packet, (VOID *)DEFAULT_MESSAGE, sizeof(DEFAULT_MESSAGE), &AppPool, TX_WAIT_FOREVER);
+      nx_tcp_socket_send(&TCPSocket, data_packet, DEFAULT_TIMEOUT);
+      // Receiving response
+      nx_tcp_socket_receive(&TCPSocket, &server_packet, DEFAULT_TIMEOUT);
+      nx_packet_data_retrieve(server_packet, data_buffer, &bytes_read);
+      PRINT_DATA(source_ip_address, source_port, data_buffer);
+      nx_packet_release(server_packet);
+      HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+    }
+    // Cleanup
+    nx_tcp_socket_disconnect(&TCPSocket, DEFAULT_TIMEOUT);
+    nx_tcp_client_socket_unbind(&TCPSocket);
+    nx_tcp_socket_delete(&TCPSocket);
+  }
+\end{lstlisting}
+
+\hypertarget{implementing-communication-with-thingspeak}{%
+\subsubsection{3.3 Implementing Communication with
+ThingSpeak}\label{implementing-communication-with-thingspeak}}
+
+Based on the code examples shown earlier, we will now set up our own
+communication with the ThingSpeak server by primarily modifying the
+mentioned files: \texttt{app\_threadx.c} and \texttt{app\_netxduo.c}.
+Additionally, some changes will be required in other files. To access
+these files, it's easier to use your computer's file explorer rather
+than \textit{STM32CubeIDE}'s, as it may not display all files present within
+folders.
+
+But before making the modifications mentioned later, I recommend
+building your project and checking for any errors related to library
+path issues, for example. To do this, go to \textbf{Project
+-\textgreater{} Build Project} and wait for the process to complete. At
+the end, you should see a message indicating that your build encountered
+0 errors. If not, delete the repository and redo the cloning procedure
+mentioned in section
+\protect\hyperlink{connecting-to-thingspeak}{\texttt{3}}.
+
+After certifying that everything is working, the first step is to add
+your WiFi SSID and password so the module can connect to the internet.
+Navigate to \texttt{Nx\_TCP\_Echo\_Client/Core/Inc/mx\_wifi\_conf.h} and
+modify the following lines by adding your network information:
+
+\begin{lstlisting}[style=CStyle]
+  #define WIFI_SSID           "YOUR_SSID"
+  #define WIFI_PASSWORD       "YOUR_PASSWORD"
+\end{lstlisting}
+
+You can connect using a network created by your smartphone or a router,
+as long as it's not an enterprise network requiring additional
+information beyond network and password, such as Eduroam.
+
+Next, define the ThingSpeak server information and the data you want to
+send. First, create a new channel on the ThingSpeak website as described
+in section
+\protect\hyperlink{getting-started-with-thingspeak}{\texttt{6}} of
+Chapter 2, and note down your Write API key. Then, modify the file
+located at \texttt{Nx\_TCP\_Echo\_Client/NetXDuo/App/app\_netxduo.h}:
+
+\begin{lstlisting}[style=CStyle]
+  #define PAYLOAD_SIZE             1544
+  #define NX_PACKET_POOL_SIZE      (( PAYLOAD_SIZE + sizeof(NX_PACKET)) * 10)
+  #define WINDOW_SIZE              512
+  
+  #define DEFAULT_MEMORY_SIZE      1024
+  #define DEFAULT_PRIORITY         10
+  
+  #define NULL_ADDRESS             0
+  
+  #define DEFAULT_PORT             6000
+  #define TCP_SERVER_PORT          80  // Port 80 for HTTP
+  #define TCP_SERVER_ADDRESS       IP_ADDRESS(184, 106, 153, 149) // ThingSpeak server IP
+  
+  #define DEFAULT_TIMEOUT          10 * NX_IP_PERIODIC_RATE
+  #define THINGSPEAK_API_KEY       "Q7G63OMFJK1H2T5W" // Write key
+  #define THINGSPEAK_FIELD_VALUE   100  // Value we want to send
+\end{lstlisting}
+
+In this code snippet, we added the ThingSpeak server information such as
+port, server IP, and our Write API key. Additionally, we defined a value
+(\texttt{THINGSPEAK\_FIELD\_VALUE}) to send to the server, which in this
+case is 100 but could represent a value read from a sensor, for example.
+
+Now, we proceed to \texttt{app\_netxduo.c}, where we will handle
+communication with the server. Since we are using the TCP protocol, we
+won't need to modify thread creation or DHCP client initialization.
+Therefore, we will only adjust \texttt{App\_TCP\_Thread\_Entry()} while
+explaining each part of what this thread will do. A better way to see
+the code is in this path:
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-3/STM32CubeU5/app_netxduo.c}{\faFolder\texttt{\ chapter-3/STM32CubeU5/app\_netxduo.c}}
+\end{center}
+
+\begin{lstlisting}[style=CStyle]
+  static VOID App_TCP_Thread_Entry(ULONG thread_input)
+  {
+      while(1){
+          UINT ret;
+  
+          ULONG bytes_read;
+          UCHAR data_buffer[512];
+  
+          ULONG source_ip_address;
+          UINT source_port;
+  
+          NX_PACKET *server_packet;
+          NX_PACKET *data_packet;
+\end{lstlisting}
+
+\begin{itemize}
+\item
+  \textbf{While Loop}: The function starts with an infinite
+  \texttt{while} loop (\texttt{while(1)}) to continuously execute its
+  tasks.
+\item
+  \textbf{Variable Declarations}: Several variables are declared:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{ret}: Used to store the return value of various function
+    calls for error handling.
+  \item
+    \texttt{bytes\_read}: Stores the number of bytes read from the
+    server response.
+  \item
+    \texttt{data\_buffer}: Buffer to hold the data received from the
+    server.
+  \item
+    \texttt{source\_ip\_address} and \texttt{source\_port}: Variables to
+    store the IP address and port of the server.
+  \item
+    \texttt{server\_packet} and \texttt{data\_packet}: Pointers to
+    NX\_PACKET structures used for sending and receiving data over the
+    network.
+  \end{itemize}
+\end{itemize}
+
+\begin{lstlisting}[style=CStyle]
+  /* create the TCP socket */
+  ret = nx_tcp_socket_create(&IpInstance, &TCPSocket, "TCP Server Socket", NX_IP_NORMAL, NX_FRAGMENT_OKAY,
+                              NX_IP_TIME_TO_LIVE, WINDOW_SIZE, NX_NULL, NX_NULL);
+  if (ret != NX_SUCCESS)
+  {
+      Error_Handler();
+  }
+
+  /* bind the client socket for the DEFAULT_PORT */
+  ret =  nx_tcp_client_socket_bind(&TCPSocket, DEFAULT_PORT, NX_WAIT_FOREVER);
+
+  if (ret != NX_SUCCESS)
+  {
+      Error_Handler();
+  }
+
+  /* connect to the remote server on the specified port */
+  ret = nx_tcp_client_socket_connect(&TCPSocket, TCP_SERVER_ADDRESS, TCP_SERVER_PORT, NX_WAIT_FOREVER);
+
+  if (ret != NX_SUCCESS)
+  {
+      Error_Handler();
+  }
+\end{lstlisting}
+
+\begin{itemize}
+\item
+  \textbf{TCP Socket Creation and Connection}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{nx\_tcp\_socket\_create}: Creates a TCP socket
+    (\texttt{TCPSocket}) for communication.
+  \item
+    \texttt{nx\_tcp\_client\_socket\_bind}: Binds the TCP client socket
+    to \texttt{DEFAULT\_PORT}.
+  \item
+    \texttt{nx\_tcp\_client\_socket\_connect}: Connects the TCP client
+    socket to \texttt{TCP\_SERVER\_ADDRESS} on
+    \texttt{TCP\_SERVER\_PORT}.
+  \end{itemize}
+\item
+  \textbf{Error Handling}: Checks if each operation
+  (\texttt{nx\_tcp\_socket\_create},
+  \texttt{nx\_tcp\_client\_socket\_bind},
+  \texttt{nx\_tcp\_client\_socket\_connect}) succeeds
+  (\texttt{ret\ ==\ NX\_SUCCESS}). If any operation fails, the
+  \texttt{Error\_Handler()} function is called to manage the error
+  appropriately.
+\end{itemize}
+
+\begin{lstlisting}[style=CStyle]
+  while(1)
+  {
+      TX_MEMSET(data_buffer, '\0', sizeof(data_buffer));
+
+      /* Create the HTTP GET request */
+      char http_request[256];
+      snprintf(http_request, sizeof(http_request),
+                  "GET /update?api_key=%s&field1=%d HTTP/1.1\r\nHost: api.thingspeak.com\r\nConnection: close\r\n\r\n",
+                  THINGSPEAK_API_KEY, THINGSPEAK_FIELD_VALUE);
+
+      /* allocate the packet to send over the TCP socket */
+      ret = nx_packet_allocate(&AppPool, &data_packet, NX_TCP_PACKET, TX_WAIT_FOREVER);
+
+      if (ret != NX_SUCCESS)
+      {
+          break;
+      }
+
+      /* append the message to send into the packet */
+      ret = nx_packet_data_append(data_packet, (VOID *)http_request, strlen(http_request), &AppPool, TX_WAIT_FOREVER);
+
+      if (ret != NX_SUCCESS)
+      {
+          nx_packet_release(data_packet);
+          break;
+      }
+
+      /* send the packet over the TCP socket */
+      ret = nx_tcp_socket_send(&TCPSocket, data_packet, DEFAULT_TIMEOUT);
+
+      if (ret != NX_SUCCESS)
+      {
+          break;
+      }
+
+      /* wait for the server response */
+      ret = nx_tcp_socket_receive(&TCPSocket, &server_packet, DEFAULT_TIMEOUT);
+
+      if (ret == NX_SUCCESS)
+      {
+          /* get the server IP address and port */
+          nx_udp_source_extract(server_packet, &source_ip_address, &source_port);
+
+          /* retrieve the data sent by the server */
+          nx_packet_data_retrieve(server_packet, data_buffer, &bytes_read);
+
+          /* print the received data */
+          PRINT_DATA(source_ip_address, source_port, data_buffer);
+
+          /* release the server packet */
+          nx_packet_release(server_packet);
+
+          /* toggle the green led on success */
+          HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+      }
+      else
+      {
+          /* no message received exit the loop */
+          break;
+      }
+  }
+\end{lstlisting}
+
+\begin{itemize}
+\item
+\textbf{Data Transmission Loop}:
+
+\begin{itemize}
+\item
+\textbf{Packet Allocation and HTTP Request Creation}:
+
+\begin{itemize}
+\tightlist
+\item
+\texttt{nx\_packet\_allocate}: Allocates a packet
+(\texttt{data\_packet}) to send over the TCP socket.
+\item
+Constructs an HTTP GET request (\texttt{http\_request}) with the
+ThingSpeak API key (\texttt{THINGSPEAK\_API\_KEY}) and field value
+(\texttt{THINGSPEAK\_FIELD\_VALUE}).
+\end{itemize}
+\item
+\textbf{Data Transmission}:
+
+\begin{itemize}
+\tightlist
+\item
+\texttt{nx\_packet\_data\_append}: Appends the HTTP request
+message to \texttt{data\_packet}.
+\item
+\texttt{nx\_tcp\_socket\_send}: Sends \texttt{data\_packet} over
+\texttt{TCPSocket} to the ThingSpeak server.
+\end{itemize}
+\item
+\textbf{Response Handling}:
+
+\begin{itemize}
+\item
+\texttt{nx\_tcp\_socket\_receive}: Waits for a response from the
+server (\texttt{server\_packet}).
+\item
+If a response (\texttt{NX\_SUCCESS}) is received:
+
+\begin{itemize}
+\tightlist
+\item
+Extracts server IP address and port
+(\texttt{nx\_udp\_source\_extract}).
+\item
+Retrieves and prints the data received from the server
+(\texttt{nx\_packet\_data\_retrieve}, \texttt{PRINT\_DATA}).
+\item
+Releases the server packet (\texttt{nx\_packet\_release}).
+\item
+Toggles a green LED
+(\texttt{HAL\_GPIO\_TogglePin(LED\_GREEN\_GPIO\_Port,\ LED\_GREEN\_Pin)}).
+\end{itemize}
+\item
+If no response is received (\texttt{ret\ !=\ NX\_SUCCESS}), exits
+the transmission loop.
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\begin{lstlisting}[style=CStyle]
+  /* release the allocated packets */
+  nx_packet_release(server_packet);
+
+  /* disconnect the socket */
+  nx_tcp_socket_disconnect(&TCPSocket, DEFAULT_TIMEOUT);
+
+  /* unbind the socket */
+  nx_tcp_client_socket_unbind(&TCPSocket);
+
+  /* delete the socket */
+  nx_tcp_socket_delete(&TCPSocket);
+
+  /* print test summary on the UART */
+  printf("\n-------------------------------------\n\tFINISHED SENDING DATA\n-------------------------------------\n");
+
+  /* sleep for 4000 clock ticks */
+  tx_thread_sleep(4000);
+}
+}
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+\textbf{Cleanup and Sleep}:
+
+\begin{itemize}
+\tightlist
+\item
+Releases allocated packets (\texttt{nx\_packet\_release}).
+\item
+Disconnects (\texttt{nx\_tcp\_socket\_disconnect}), unbinds
+(\texttt{nx\_tcp\_client\_socket\_unbind}), and deletes
+(\texttt{nx\_tcp\_socket\_delete}) the TCP socket.
+\item
+Prints a test summary on UART indicating data transmission
+completion.
+\item
+Sleeps for 4000 clock ticks (\texttt{tx\_thread\_sleep(4000)})
+before restarting the loop for continuous communication with
+ThingSpeak.
+\end{itemize}
+\end{itemize}
+
+This function continuously sends HTTP GET requests to the ThingSpeak
+server, retrieves responses, and handles them appropriately, ensuring
+reliable communication using TCP/IP. It includes error handling and
+operates periodically with a sleep interval of 4000 clock ticks. In my
+case, a sleep of 4000 was sufficient for the server to receive all
+packets. If this number were smaller, data transmission would be faster,
+but the server might not handle the influx and fail to update its
+database.
+
+This implementation provides a straightforward approach for such
+communication logic, suitable for small-scale applications like ours.
+
+With these modifications made, simply build the project via
+\textbf{Project -\textgreater{} Build Project} and run it in debug mode
+via \textbf{Run -\textgreater{} Debug}. You can monitor the entire
+initialization, transmission, and reception process in a terminal, as
+shown below, where the terminal output precedes the result on the
+ThingSpeak website.
+
+\begin{figure}[H]
+  \centering
+  \subfigure{\includegraphics[width=0.30\textwidth]{images/54.png}}
+  \subfigure{\includegraphics[width=0.38\textwidth]{images/55.png}}
+\end{figure}
+
+\hypertarget{chapter-4-integrating-ai-into-edge-devices}{%
+\section{Chapter 4: Integrating AI into Edge
+Devices}\label{chapter-4-integrating-ai-into-edge-devices}}
+
+\hypertarget{overview-of-embedded-ai}{%
+\subsection{1. Overview of Embedded AI}\label{overview-of-embedded-ai}}
+
+Embedded AI refers to the integration of artificial intelligence
+capabilities into devices or systems, often known as edge applications.
+This enables tasks involving machine learning to be performed locally,
+without the need for external computational resources such as cloud
+services.
+
+The primary advantages of this approach include:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Reduced Latency}: Due to the proximity of the processing unit
+  to the task.
+\item
+  \textbf{Low Bandwidth Usage}: Minimal data transmission requirements.
+\item
+  \textbf{Low Power Consumption}: Optimized for energy efficiency.
+\item
+  \textbf{Network Independence}: Operates without constant internet
+  connectivity.
+\item
+  \textbf{High Performance}: Capable of handling demanding tasks
+  efficiently.
+\end{itemize}
+
+Devices with embedded AI are becoming increasingly common and diverse.
+Examples include smart cameras that can process images in real-time,
+voice assistants that understand and respond to commands without delay,
+industrial robots that adapt to their environments, autonomous vehicles
+that navigate without human intervention, and various IoT devices that
+perform complex tasks independently. These systems utilize AI algorithms
+to enhance their capabilities, making them smarter and more efficient.
+
+In this chapter, we will introduce the fundamental concepts of edge AI
+using microcontrollers. This knowledge will enable you to integrate your
+own models into the topics discussed in previous chapters, allowing you
+to create a complete network. With this approach, you can:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Build Custom Data Acquisition Systems}: Use sensors to gather
+  data in real-time.
+\item
+  \textbf{Analyze Data Locally}: Implement your own neural networks on
+  microcontrollers to process and analyze data on-site.
+\item
+  \textbf{Automate Device Control}: Use the analysis results to trigger
+  actions in other devices and components.
+\item
+  \textbf{Cloud Integration for Monitoring}: Connect to the cloud only
+  to remotely monitor and visualize the collected data and analysis
+  results.
+\end{itemize}
+
+To better understand embedded AI and the usage of \textit{STM32CubeIDE}
+for this application, which, as mentioned earlier, can be somewhat
+complex for new users, we will implement a very simple neural network
+(NN) model that has been previously developed. Therefore, we will not
+delve into the concepts of developing your own NN and will mainly focus
+on the software usage. However, the model used, developed in
+\texttt{Google\ Colab}, is present in the following path:
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-4/tflite_sinewave_training.ipynb}{\faFolder\texttt{\ chapter-4/tflite\_sinewave\_training.ipynb}}
+\end{center}
+
+The developed model is capable of approximating the sine value of a
+given number using a cloud of random points without using trigonometric
+operations. As we will see at the end of this tutorial, the obtained
+value will not be exact, as this method is inefficient for determining
+the sine of a number. However, it will be very useful for you to easily
+understand the implementation of AI in microcontrollers.
+
+This tutorial is based on the material developed by \texttt{DigiKey} and
+is available at:
+\href{https://www.digikey.fr/en/maker/projects/tinyml-getting-started-with-stm32-x-cube-ai/f94e1c8bfc1e4b6291d0f672d780d2c0}{\texttt{TinyML:\ Getting\ Started\ with\ STM32\ X-CUBE-AI}}
+
+\hypertarget{exporting-the-model}{%
+\subsection{2. Exporting the Model}\label{exporting-the-model}}
+
+The first step is to export your model in the \texttt{.tflite} format to
+be used in our application. This type of file is generated through the
+TensorFlow Lite (TFLite) toolkit, an open-source library developed by
+Google for deploying machine learning models to edge devices.
+
+TensorFlow Lite is a lightweight version of TensorFlow designed for
+mobile and embedded devices. It enables the deployment of machine
+learning models on resource-constrained platforms like smartphones,
+microcontrollers, and IoT devices. TFLite models are optimized for low
+latency and low power consumption. You can convert TensorFlow models to
+TFLite format using the TFLite Converter, which applies optimizations
+such as quantization.
+
+Quantization is a technique used in machine learning and digital signal
+processing to reduce the precision of the numbers representing a model,
+typically from floating-point to integer values. This process helps to
+decrease the model size, reduce memory usage, and improve computational
+efficiency, particularly important for deploying models on
+resource-constrained devices like microcontrollers and mobile phones.
+
+So, we need to follow these steps to have our model in \texttt{.tflite}
+format:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  First, we will import our \texttt{tflite\_sinewave\_training.ipynb}
+  file into the
+  \href{https://colab.research.google.com/}{\texttt{Google\ Colab}}
+  environment via \textbf{File -\textgreater{} Upload Notebook}.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/30.png}
+    \end{center}
+  \end{figure}
+\item
+  Check the code if you are interested in how to do the conversion to a
+  \texttt{.tflite} file. Then, run all the cells in \textbf{Runtime
+  -\textgreater{} Run All}.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/31.png}
+    \end{center}
+  \end{figure}
+\item
+  After the execution is complete, download the
+  \texttt{sine\_model.tflite} file.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/32.png}
+    \end{center}
+  \end{figure}
+\end{enumerate}
+
+The same file is also available at:
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-4/sine_model.tflite}{\faFolder\texttt{\ chapter-4/sine\_model.tflite}}
+\end{center}
+
+\hypertarget{installing-the-x-cube-ai-package}{%
+\subsection{3. Installing the X-Cube-AI
+Package}\label{installing-the-x-cube-ai-package}}
+
+\texttt{X-CUBE-AI} is an STM32Cube Expansion Package, part of the
+\texttt{STM32Cube.AI} ecosystem. With this package, we can utilize
+functionalities for the automatic conversion of pretrained artificial
+intelligence algorithms, including neural network and classical machine
+learning models, into our C code as optimized libraries to be
+implemented on the microcontroller.
+
+To do this, follow these steps:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Open \textit{STM32CubeIDE}.
+\item
+  Log in with your \texttt{myST} account. Create if you don't have one.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/33.png}
+    \end{center}
+  \end{figure}
+\item
+  Go to \textbf{Help -\textgreater{} Manage Embedded Software Packages}.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/34.png}
+    \end{center}
+  \end{figure}
+\item
+  Under \textbf{STMicroelectronics}, search for the \textbf{X-Cube-AI}
+  package.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/35.png}
+    \end{center}
+  \end{figure}
+\item
+  Install version \texttt{5.3.0} by clicking \textbf{Install}.
+  \texttt{Do\ not\ use\ another\ version}, as the implementation of the
+  package libraries may differ from what is shown here.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/36.png}
+    \end{center}
+  \end{figure}
+\end{enumerate}
+
+\hypertarget{project-initialization}{%
+\subsection{4. Project Initialization}\label{project-initialization}}
+
+Now we will start our project as the same way we did before in Chapter
+3:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Click on \textbf{File -\textgreater{} New -\textgreater{} STM32
+  Project}.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/37.png}
+    \end{center}
+  \end{figure}
+\item
+  Select the \textbf{Board Selector} tab and search for
+  \texttt{B-U585I-IOT02A}, click on it and then click \textbf{Next}.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/38.png}
+    \end{center}
+  \end{figure}
+\item
+  Choose a name for your project and leave the default settings as shown
+  in the image, then select \textbf{Finish}. If asked to initialize all
+  peripherals, click \textbf{Yes} to already pre-configure your
+  microcontroller pins and functionalities.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/39.png}
+    \end{center}
+  \end{figure}
+\item
+  You will then have \textit{STM32CubeMX} interface.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/40.png}
+    \end{center}
+  \end{figure}
+\end{enumerate}
+
+\hypertarget{project-configuration}{%
+\subsection{5. Project Configuration}\label{project-configuration}}
+
+Having covered the basics of the software from the previous chapter and
+the recommended videos, we can now proceed with configuring our project.
+
+For this tutorial, we will not use any pins as input or output. We will
+use serial communication to print information on the terminal and verify
+the operation of our code. Normally, it would be necessary to configure
+one of the \texttt{UART} ports for serial communication, but this has
+already been initialized and is connected through the
+\texttt{micro-USB\ ST-Link} for a direct connection to the computer
+using a baud rate of 115200 Bits/s.
+
+Follow these steps to configure our project:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  In the \texttt{Timers} tab, activate \texttt{TIM16} so that it ticks
+  every microsecond. To do this, select \texttt{TIM16}, check
+  \texttt{Activated} in \textbf{Mode}, and in the \textbf{Configuration}
+  tab, set the \texttt{Prescaler} to meet our requirement of ticking
+  every microsecond (160-1=159 for a system clock of 160 MHz) and set
+  the \texttt{AutoReload\ register} to its maximum (65535 for a 16-bit
+  timer). For a better understanding of how timers work, see section
+  \protect\hyperlink{timer-and-trigger-management-in-STM32CubeIDE-projects}{\texttt{2}}
+  of Chapter 3.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/44.png}
+    \end{center}
+  \end{figure}
+\item
+  Next, we will add the \texttt{X-CUBE-AI} package to the project. Click
+  on \textbf{Software Packs} and then on \textbf{Select Components}, and
+  a new window will appear. Search for the \texttt{X-CUBE-AI} package
+  and, as mentioned earlier during its installation, choose version
+  \texttt{5.2.0} and activate the \texttt{Core}. If the installed
+  version does not appear, remove and reinstall it using the same method
+  described in section
+  \protect\hyperlink{installing-the-x-cube-ai-package}{\texttt{3}},
+  save the project, choose not to generate the code, restart the
+  software, and see if the correct version appears.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/45.png}
+    \end{center}
+  \end{figure}
+\item
+  Now let's configure the \texttt{X-CUBE-AI} package. Select the
+  \texttt{Middleware\ and\ Software\ Packs} tab and click on
+  \texttt{X-CUBE-AI}. Activate the package in \textbf{Mode}, and in
+  \textbf{Configuration}, click on \texttt{Add\ network} and add the
+  model in \texttt{.tflite} format generated through \texttt{Colab} with
+  the name that will be used by its functions in the code you will write
+  later.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/46.png}
+    \end{center}
+  \end{figure}
+\item
+  After configuring the model, we can compress it to fit in our
+  microcontroller. As previously mentioned, the memory required to run a
+  given model may exceed the available memory on the microcontroller.
+  However, since our example is very small, it will not require this
+  configuration. We can then analyze the model and verify that
+  everything is correct by clicking on \texttt{Analyze}, which will show
+  some parameters about the model, such as its complexity and the
+  necessary \texttt{Flash} and \texttt{RAM} memory sizes for its
+  implementation. The \texttt{Show\ graph} option will display a
+  graphical view of your model. The desktop and target validation
+  options can be used to validate the application of your model but will
+  not be covered at this time.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-3cm\relax,keepaspectratio]{images/47.png}
+    \end{center}
+  \end{figure}
+\item
+  Now we will configure the clock of our microcontroller the same way we
+  did in Chapter 3. To do this, select the top \textbf{Clock
+  Configuration} tab. Select the \texttt{High\ Speed\ Internal\ Clock}
+  (HSI) in the \texttt{PLL\ Source\ Mux}, set \texttt{HCLK\ (MHz)} to
+  the maximum allowed (160 MHz), press Enter, and wait for the software
+  to find the best solution for your configuration, which should look
+  similar to the values on the right in the photo below (red box 4).
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/48.png}
+    \end{center}
+  \end{figure}
+\item
+  The final configuration step is the \textbf{Project Manager}. Select
+  the top tab with the same name and then \textbf{Code Generator}, click
+  on
+  \texttt{Add\ necessary\ library\ files\ as\ referenced\ in\ the\ toolchain\ project\ configuration\ file},
+  and uncheck the option
+  \texttt{Delete\ previously\ generated\ files\ when\ not\ re-generated}.
+  Save the project and select to generate code in the window that
+  appears.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-2cm\relax,keepaspectratio]{images/49.png}
+    \end{center}
+  \end{figure}
+\item
+  Now, your project is configured, and your initial code is generated.
+  Ensure that you have the \texttt{X-CUBE-AI} and \texttt{Middlewares}
+  folders in your \textbf{Project Explorer} on the left. If these
+  folders are missing, you may have incorrectly configured the required
+  version of \texttt{X-CUBE-AI} or selected the wrong options in the
+  \textbf{Project Manager}.
+
+  If these folders are not present, follow these troubleshooting steps:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Reinstall X-CUBE-AI}: Go back to the \textbf{Manage Embedded
+    Software Packages} under \textbf{Help} and ensure that version
+    \texttt{5.2.0} of \texttt{X-CUBE-AI} is installed. If not, reinstall
+    it as described in section
+    \protect\hyperlink{installing-the-x-cube-ai-package}{\texttt{3}}.
+  \item
+    \textbf{Verify Project Manager Settings}: Double-check the settings
+    in the \textbf{Project Manager} to ensure all necessary options are
+    selected. Specifically, make sure
+    \texttt{Add\ necessary\ library\ files\ as\ referenced\ in\ the\ toolchain\ project\ configuration\ file}
+    is checked, and
+    \texttt{Delete\ previously\ generated\ files\ when\ not\ re-generated}
+    is unchecked. If you continue with the problem, you can try to
+    choose the other options in this same tab in the
+    \texttt{packages\ and\ embedded\ software\ packs} and
+    \texttt{generated\ files} sections.
+  \item
+    \textbf{Generate Code Again}: Save your project and regenerate the
+    code. Ensure no errors are present during the generation process.
+  \end{itemize}
+\end{enumerate}
+
+By following these steps, you should have your project correctly set up
+with all necessary libraries and configurations, allowing you to proceed
+with developing your embedded AI application on the
+\textit{STM32CubeIDE}.
+
+\hypertarget{writing-the-code}{%
+\subsection{6. Writing the Code}\label{writing-the-code}}
+
+After configuring the project and generating the code, we move on to
+developing our programming logic. The complete code is available in the
+provided folder, but don't just copy and paste it completely, because
+the generated code can change based on the microprocessor, your project
+configuration, or even the IDE and package versions used. Therefore,
+only copy and paste within the safe zones mentioned earlier.
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-4/B-U585I-IOT02A-sine-model/Core/Src/main.c}{\faFolder\texttt{\ chapter-4/B-U585I-IOT02A-sine-model/Core/Src/main.c}}
+\end{center}
+
+\textbf{Including Libraries:}
+
+The first step is to add the necessary headers.
+
+\begin{lstlisting}[style=CStyle]
+  /* Private includes ----------------------------------------------------------*/
+  /* USER CODE BEGIN Includes */
+  #include <stdio.h>
+  
+  #include "ai_datatypes_defines.h"
+  #include "ai_platform.h"
+  #include "sine_model.h"
+  #include "sine_model_data.h"
+  /* USER CODE END Includes */
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{stdio.h}: Standard C library for using the \texttt{printf}
+  command.
+\item
+  \textbf{sine\_model.h}: Contains the main functions we will use in our
+  code. You can access them by hovering over the \texttt{include} and
+  clicking while holding the \texttt{CTRL} key.
+\item
+  \textbf{sine\_model\_data.h}: Represents our neural network in byte
+  format.
+\end{itemize}
+
+The remaining libraries are generated by \texttt{X-CUBE-AI} and include
+functions we will use to integrate our model into the code.
+
+Note that \texttt{sine\_model.h} and \texttt{sine\_model\_data.h} use
+the same name given to the model during the \texttt{X-CUBE-AI}
+configuration. If you named it differently, you must use that name here
+and in other functions below.
+
+\textbf{Global Variables and Initializations:}
+
+After the includes, we declare global variables and initialize some
+structures critical for the neural network operation on the STM32
+microcontroller.
+
+\begin{lstlisting}[style=CStyle]
+  /* USER CODE BEGIN 1 */
+  char buf[50];
+  int buf_len = 0;
+  ai_error ai_err;
+  ai_i32 nbatch;
+  uint32_t timestamp;
+  float y_val;
+  
+  // Chunk of memory used to hold intermediate values for neural network
+  AI_ALIGNED(4) ai_u8 activations[AI_SINE_MODEL_DATA_ACTIVATIONS_SIZE];
+  
+  // Buffers used to store input and output tensors
+  AI_ALIGNED(4) ai_i8 in_data[AI_SINE_MODEL_IN_1_SIZE_BYTES];
+  AI_ALIGNED(4) ai_i8 out_data[AI_SINE_MODEL_OUT_1_SIZE_BYTES];
+  
+  // Pointer to our model
+  ai_handle sine_model = AI_HANDLE_NULL;
+  
+  // Initialize wrapper structs that hold pointers to data and info about the
+  // data (tensor height, width, channels)
+  ai_buffer ai_input[AI_SINE_MODEL_IN_NUM] = AI_SINE_MODEL_IN;
+  ai_buffer ai_output[AI_SINE_MODEL_OUT_NUM] = AI_SINE_MODEL_OUT;
+  
+  // Set working memory and get weights/biases from model
+  ai_network_params ai_params = {
+  AI_SINE_MODEL_DATA_WEIGHTS(ai_sine_model_data_weights_get()),
+  AI_SINE_MODEL_DATA_ACTIVATIONS(activations)
+  };
+  
+  // Set pointers wrapper structs to our data buffers
+  ai_input[0].n_batches = 1;
+  ai_input[0].data = AI_HANDLE_PTR(in_data);
+  ai_output[0].n_batches = 1;
+  ai_output[0].data = AI_HANDLE_PTR(out_data);
+  /* USER CODE END 1 */
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Memory Buffers}: \texttt{activations}, \texttt{in\_data}, and
+  \texttt{out\_data} are memory buffers that store intermediate data,
+  inputs, and outputs of the neural network, respectively.
+\item
+  \textbf{Model Pointer}: \texttt{sine\_model} is a pointer that will
+  reference the neural network instance.
+\item
+  \textbf{Input and Output Structures}: \texttt{ai\_input} and
+  \texttt{ai\_output} are structures that hold pointers to the input and
+  output data, as well as information about tensor dimensions.
+\item
+  \textbf{Network Parameters}: \texttt{ai\_params} contains the weights,
+  biases, and activations of the neural network, essential for
+  initializing the model.
+\item
+  \textbf{Buffer Configuration}: The lines defining
+  \texttt{ai\_input{[}0{]}.n\_batches} and
+  \texttt{ai\_output{[}0{]}.n\_batches} configure these buffers to
+  receive one batch of data.
+\end{itemize}
+
+\textbf{Neural Network Initialization:}
+
+Next, we initialize the timer and set up the neural network:
+
+\begin{lstlisting}[style=CStyle]
+  /* USER CODE BEGIN 2 */
+  // Start timer/counter
+  HAL_TIM_Base_Start(&htim16);
+  
+  // Greetings!
+  buf_len = sprintf(buf, "\r\n\r\nSTM32 X-Cube-AI test\r\n");
+  HAL_UART_Transmit(&huart1, (uint8_t *)buf, buf_len, 100);
+  
+  // Create instance of neural network
+  ai_err = ai_sine_model_create(&sine_model, AI_SINE_MODEL_DATA_CONFIG);
+  if (ai_err.type != AI_ERROR_NONE)
+  {
+      buf_len = sprintf(buf, "Error: could not create NN instance\r\n");
+      HAL_UART_Transmit(&huart1, (uint8_t *)buf, buf_len, 100);
+      while(1);
+  }
+  
+  // Initialize neural network
+  if (!ai_sine_model_init(sine_model, &ai_params))
+  {
+      buf_len = sprintf(buf, "Error: could not initialize NN\r\n");
+      HAL_UART_Transmit(&huart1, (uint8_t *)buf, buf_len, 100);
+      while(1);
+  }
+  /* USER CODE END 2 */
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Timer Initialization}:
+  \texttt{HAL\_TIM\_Base\_Start(\&htim16)} starts a timer used to
+  measure the neural network inference time.
+\item
+  \textbf{Welcome Message}: \texttt{sprintf} and
+  \texttt{HAL\_UART\_Transmit} send an initial message via UART,
+  confirming that the system is operational.
+\item
+  \textbf{Neural Network Instance Creation}:
+  \texttt{ai\_sine\_model\_create} creates an instance of the neural
+  network. If an error occurs, an error message is transmitted, and the
+  system enters an infinite loop.
+\item
+  \textbf{Neural Network Initialization}: \texttt{ai\_sine\_model\_init}
+  initializes the neural network with the parameters defined earlier. If
+  initialization fails, an error message is transmitted, and the system
+  enters an infinite loop.
+\end{itemize}
+
+\textbf{Main Loop:}
+
+Finally, we have the main loop of the code, where inference is
+continuously performed:
+
+\begin{lstlisting}[style=CStyle]
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+      // Fill input buffer (use test value)
+      for (uint32_t i = 0; i < AI_SINE_MODEL_IN_1_SIZE; i++)
+      {
+      ((ai_float *)in_data)[i] = (ai_float)2.0f;
+      }
+  
+      // Get current timestamp
+      timestamp = htim16.Instance->CNT;
+  
+      // Perform inference
+      nbatch = ai_sine_model_run(sine_model, &ai_input[0], &ai_output[0]);
+      if (nbatch != 1) {
+      buf_len = sprintf(buf, "Error: could not run inference\r\n");
+      HAL_UART_Transmit(&huart1, (uint8_t *)buf, buf_len, 100);
+      }
+  
+      // Read output (predicted y) of neural network
+      y_val = ((float *)out_data)[0];
+  
+      // Print output of neural network along with inference time (microseconds)
+      buf_len = sprintf(buf,
+                      "Output: %f | Duration: %lu\r\n",
+                      y_val,
+                      htim16.Instance->CNT - timestamp);
+      HAL_UART_Transmit(&huart1, (uint8_t *)buf, buf_len, 100);
+  
+      // Wait before doing it again
+      HAL_Delay(500);
+  
+  /* USER CODE END WHILE */
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Fill Input Buffer}: The \texttt{for} loop fills the input
+  buffer \texttt{in\_data} with a test value (2.0f) for inference.
+\item
+  \textbf{Timestamp}: \texttt{timestamp} stores the current timer value
+  before inference to measure execution time.
+\item
+  \textbf{Inference}: \texttt{ai\_sine\_model\_run} performs the neural
+  network inference. If it returns a value other than 1, it indicates an
+  error.
+\item
+  \textbf{Read Result}: \texttt{y\_val} stores the output value of the
+  neural network.
+\item
+  \textbf{Send Result}: \texttt{sprintf} and
+  \texttt{HAL\_UART\_Transmit} send the result and inference time via
+  UART.
+\item
+  \textbf{Delay}: \texttt{HAL\_Delay(500)} creates a 500 ms pause before
+  the next inference.
+\end{itemize}
+
+\textbf{Handling Float in \texttt{printf}}
+
+You will notice an error when adding the line to print the output of the
+neural network along with the inference time. In \textit{STM32CubeIDE},
+the \texttt{printf} function does not support float values by default.
+To fix this, we need to change the project settings.
+
+Go to \textbf{Project -\textgreater{} Properties -\textgreater{} C/C++
+Build -\textgreater{} Settings}, select the \textbf{Configuration}
+\texttt{Debug} and in \textbf{MCU GCC Linker -\textgreater{}
+Miscellaneous}, add \texttt{-u\_printf\_float} in \textbf{Other flags}.
+Repeat this for the \texttt{Release} \textbf{Configuration}. Finally,
+click \texttt{Apply\ and\ Close} and save your program.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-1cm\relax,keepaspectratio]{images/50.png}
+  \end{center}
+\end{figure}
+
+Now, in \textbf{Project -\textgreater{} Build Project}, you can compile
+your code and see if there are any errors. With these steps, your code
+is ready to run the neural network on the STM32 microcontroller,
+allowing you to observe the outputs and performance metrics via
+\texttt{UART}. This code will infer the \texttt{sin(2.0)} in radians and
+provide the approximate value based on the results obtained during the
+model training.
+
+\hypertarget{debugging-and-uploading-to-stm32}{%
+\subsection{7. Debugging and Uploading to
+STM32}\label{debugging-and-uploading-to-stm32}}
+
+To ensure that our code functions correctly and everything is as
+expected, we will run it in \texttt{Debug} mode. Follow these steps:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Navigate to \textbf{Run -\textgreater{} Debug}.
+\item
+  In the \textbf{Confirm Perspective Switch} window that appears, press
+  \textbf{Switch}.
+\item
+  Finally, click \textbf{Resume} in the top toolbar (or press F8).
+\end{enumerate}
+
+Next, open a serial terminal to observe your code running on the
+microcontroller. While I will use the terminal in \textit{Mbed Studio},
+you may prefer a dedicated terminal application such as \texttt{PuTTY}.
+Select the correct port and set the baud rate to 115200 Bits/s. You
+should see an output similar to the image below:
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-3cm\relax,keepaspectratio]{images/51.png}
+  \end{center}
+\end{figure}
+
+As shown in the example, my model inferred an output of 0.8899 for
+\texttt{sin(2.0)}, which is relatively close to the actual value of
+0.9093. This result is acceptable for demonstrating the procedure, but
+the training could be improved to enhance the accuracy of the inference.
+
+We can also run our code in \texttt{Release} mode on our
+microcontroller. This mode excludes certain files used by the
+\texttt{Debug} mode and employs a different compiler optimizer, reducing
+the code size and potentially improving inference time. To do this:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Stop the \texttt{Debug} mode if it is still running by clicking the
+  \textbf{Terminate} button in the superior toolbar.
+\item
+  Navigate to \textbf{Project -\textgreater{} Build Configurations
+  -\textgreater{} Set Active -\textgreater{} Release}.
+\item
+  Click \textbf{Run -\textgreater{} Run Configurations}. In that window,
+  in the left pane, click on the \textbf{New Launch Configuration
+  button}, which should create a new configuration named
+  \texttt{project\_name\ Release}.
+\item
+  In the \texttt{Main} tab, select \textbf{Search Project} and select
+  your \texttt{project\_name/Release/project\_name.elf} file from the
+  bottom pane. Click \textbf{OK}. Select \texttt{Release} for your
+  \textbf{Build Configuration}. Click \textbf{Apply} and \textbf{Run}.
+\item
+  Check your terminal output.
+\end{enumerate}
+
+In my case, the differences were minimal (only 1 microsecond faster
+inference time), but depending on the size of your code,
+functionalities, and the microcontroller used, the impact may be more
+significant.
+
+\hypertarget{references}{%
+\section*{References}\label{references}}
+\addcontentsline{toc}{section}{References}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+  \leavevmode\hypertarget{ref-Discovery-Kit-IoT-User-Manual}{}%
+  STMicroelectronics. \textit{B-L475E-IOT01A - STM32L4 Discovery kit IoT node}. \url{https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html}
+  
+  \leavevmode\hypertarget{ref-STM32L475RC-Datasheet}{}%
+  STMicroelectronics. \textit{STM32L475RC Datasheet Ultra-low-power Arm® Cortex®-M4 32-bit MCU+FPU}. \url{https://www.st.com/resource/en/datasheet/stm32l475rc.pdf}
+  
+  \leavevmode\hypertarget{ref-B-U585I-IOT02A-Datasheet}{}%
+  STMicroelectronics. \textit{B-U585I-IOT02A Discovery kit for IoT node with STM32U5 series}. \url{https://www.st.com/en/evaluation-tools/b-u585i-iot02a.html}
+  
+  \leavevmode\hypertarget{ref-mbed-OS}{}%
+  Arm. \textit{MBed OS Official Website}. \url{https://os.mbed.com/}
+  
+  \leavevmode\hypertarget{ref-STM32CubeIDE}{}%
+  STMicroelectronics. \textit{STM32CubeIDE Integrated Development Environment for STM32}. \url{https://www.st.com/en/development-tools/stm32cubeide.html}
+  
+  \leavevmode\hypertarget{ref-STSW-LINK009}{}%
+  STMicroelectronics. \textit{STSW-LINK009 USB Driver}. \url{https://www.st.com/en/development-tools/stsw-link009.html}
+  
+  \leavevmode\hypertarget{ref-PuTTY}{}%
+  PuTTY. \textit{PuTTY - Terminal Emulator}. \url{https://www.putty.org/}
+  
+  \leavevmode\hypertarget{ref-STM32U5-series-package}{}%
+  STMicroelectronics. \textit{STM32Cube MCU Package for STM32U5 series}. \url{https://www.st.com/en/embedded-software/stm32cubeu5.html#overview}
+  
+  \leavevmode\hypertarget{ref-STM32CubeMX}{}%
+  STMicroelectronics. \textit{STM32CubeMX Tool - STM32Cube initialization code generator}. \url{https://www.st.com/en/development-tools/stm32cubemx.html}
+  
+  \leavevmode\hypertarget{ref-STM32CubeProgrammer}{}%
+  STMicroelectronics. \textit{STM32CubeProgrammer Tool - STM32CubeProgrammer software for all STM32}. \url{https://www.st.com/en/development-tools/stm32cubeprog.html}
+  
+  \leavevmode\hypertarget{ref-Release-Notes-STM32CubeU5}{}%
+  STMicroelectronics. \textit{Release Notes for STM32CubeU5 Firmware Package}. \url{https://htmlpreview.github.io/?https://github.com/STMicroelectronics/STM32CubeU5/blob/master/Release_Notes.html}
+  
+  \leavevmode\hypertarget{ref-STM32Cube-MCU-Package}{}%
+  STMicroelectronics. \textit{STM32Cube MCU Package for STM32U5 series}. \url{https://github.com/STMicroelectronics/STM32CubeU5/tree/main}
+  
+  \leavevmode\hypertarget{ref-STM32-Guide2-Registers-HAL}{}%
+  Mitch Davis. \textit{STM32 Guide \#2: Registers + HAL (Blink example)}. \url{https://www.youtube.com/watch?v=Hffw-m9fuxc&list=WL&index=30}
+  
+  \leavevmode\hypertarget{ref-STM32-Timers-Tutorial}{}%
+  Deep Blue Embedded. \textit{STM32 Timers Tutorial | Hardware Timers Explained}. \url{https://deepbluembedded.com/stm32-timers-tutorial-hardware-timers-explained/}
+  
+  \leavevmode\hypertarget{ref-Getting-Started-STM32-Nucleo-Timers}{}%
+  DigiKey. \textit{Getting Started with STM32 and Nucleo Part 6: Timers and Timer Interrupts | Digi-Key Electronics}. \url{https://youtu.be/VfbW6nfG4kw?si=4GEUskWYxO0k2GLK}
+  
+  \leavevmode\hypertarget{ref-STM32-PWM-Example}{}%
+  Deep Blue Embedded. \textit{STM32 PWM Example – Timer PWM Mode Tutorial}. \url{https://deepbluembedded.com/stm32-pwm-example-timer-pwm-mode-tutorial/}
+  
+  \leavevmode\hypertarget{ref-STM32-Timers-Dead-time}{}%
+  STMicroelectronics. \textit{Hands-On with STM32 Timers: Dead-time Insertion in Complementary PWM Output}. \url{https://www.youtube.com/watch?v=rDaC2N-33Oo}
+  
+  \leavevmode\hypertarget{ref-TinyML-STM32-X-CUBE-AI}{}%
+  DigiKey. \textit{TinyML: Getting Started with STM32 X-CUBE-AI}. \url{https://www.digikey.fr/en/maker/projects/tinyml-getting-started-with-stm32-x-cube-ai/f94e1c8bfc1e4b6291d0f672d780d2c0}
+  
+  \leavevmode\hypertarget{ref-TensorFlow-Lite}{}%
+  TensorFlow. \textit{TensorFlow Lite Official Website}. \url{https://www.tensorflow.org/lite}
+  
+  \leavevmode\hypertarget{ref-X-CUBE-AI-Package}{}%
+  STMicroelectronics. \textit{X-CUBE-AI - AI expansion pack for STM32CubeMX}. \url{https://www.st.com/en/embedded-software/x-cube-ai.html#get-software}
+  
+  \end{CSLReferences}
+  
+\end{document}

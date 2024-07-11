@@ -2,6 +2,12 @@
 
 <div align="center" style="padding: 0px 0;">
     <p align="center">
+        <a href="https://zenodo.org/doi/10.5281/zenodo.12700232"><img src="https://zenodo.org/badge/825766129.svg" alt="DOI"></a>
+    </p>
+</div>
+
+<div align="center" style="padding: 0px 0;">
+    <p align="center">
         <a href="https://os.mbed.com/mbed-os/"><img src="https://img.shields.io/badge/Mbed-black?logo=arm&logoColor=white" /></a>
         <a href="https://thingspeak.com"><img src="https://img.shields.io/badge/ThingSpeak-4682B4?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwcHgiIGhlaWdodD0iODAwcHgiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHRpdGxlPm1hdGxhYl9tb25vPC90aXRsZT48cGF0aCBkPSJNMiwxNy41NWw3Ljk3LTMuMjJhMjAuNywyMC43LDAsMCwxLDIuNzItMi45NWMuNjYtLjM1LDEuOS0uMTYsNC4xNy0yLjk4LDIuMi0yLjc1LDIuOS01LjEsMy45My01LjEsMS42MywwLDIuODMsMy41Miw0LjY1LDguODVBMTE1LjYyOSwxMTUuNjI5LDAsMCwwLDMwLDI0LjEyYy0xLjktMS43Ny0zLjUyLTMuNjgtNS4zNy0zLjYzLTEuNzIuMDQtMy42MywyLjA4LTUuNzIsNC43LTEuNjYsMi4xLTMuODYsMy41NC00LjcyLDMuNTEsMCwwLTIuMjItNi4yOC00LjA4LTcuM2EyLjY0MSwyLjY0MSwwLDAsMC0yLjM5LjJMMiwxNy41NFoiIHN0eWxlPSJmaWxsOiNCREJEQkQiLz48cGF0aCBkPSJNMTkuOCw0LjAyYy0uNjcuOS0xLjQ4LDIuNTUtMi45NCw0LjM4LTIuMjcsMi44Mi0zLjUsMi42My00LjE3LDIuOThhMTkuNjc0LDE5LjY3NCwwLDAsMC0yLjcyLDIuOTVsMy4zLDIuNDFjMi44LTMuODIsNC4zLTcuOTYsNS40Ny0xMC42NEExMy41NzksMTMuNTc5LDAsMCwxLDE5LjgsNC4wMloiIHN0eWxlPSJmaWxsOiM3NDc0NzQiLz48cGF0aCBkPSJNMjAuOCwzLjNjLTIuMTgsMC0zLjY3LDExLjQ4LTExLjcyLDE3Ljg5LDIuMjYtLjM3LDQuMjIsNS4yNCw1LjEyLDcuNTEsNC0uNjgsNy4yLTguMzMsMTAuNDMtOC4yMSwxLjg1LjA3LDMuNDcsMS44Niw1LjM3LDMuNjNDMjUuNjYsMTUsMjMuNjMsMy4zLDIwLjgsMy4zWiIgc3R5bGU9ImZpbGw6I0ZCRkJGQiIvPjwvc3ZnPg=="/></a>
         <a href="https://learn.microsoft.com/en-us/cpp/c-language/?view=msvc-170"><img src="https://img.shields.io/badge/C-%2300599C.svg?logo=c&logoColor=white"/></a>  
@@ -22,6 +28,8 @@ This repository contains a comprehensive tutorial designed to help you develop p
 
 # Table of Contents
 
+- [AIoT Guidebook](#aiot-guidebook)
+- [Table of Contents](#table-of-contents)
 - [Chapter 1: Overview and Objectives](#chapter-1-overview-and-objectives)
   - [1. Learning Goals](#1-learning-goals)
   - [2. The Hardware and Software](#2-the-hardware-and-software)
@@ -1498,7 +1506,7 @@ Deadtimes are essential in many applications involving switching devices, such a
 **Configuring Deadtimes:**
 
 - In STM32CubeMX, navigate to the timer configuration.
-- Locate the deadtime settings under PWM Generation mode (you need to have ).
+- Locate the deadtime settings under PWM Generation mode.
 - Set appropriate deadtime values to ensure safe operation of your PWM-driven systems.
 
 You can also see this tutorial from STMicroelectronics on how to configure deadtimes in you projects using a complementary PWM mode:
