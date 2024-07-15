@@ -28,8 +28,6 @@ This repository contains a comprehensive tutorial designed to help you develop p
 
 # Table of Contents
 
-- [AIoT Guidebook](#aiot-guidebook)
-- [Table of Contents](#table-of-contents)
 - [Chapter 1: Overview and Objectives](#chapter-1-overview-and-objectives)
   - [1. Learning Goals](#1-learning-goals)
   - [2. The Hardware and Software](#2-the-hardware-and-software)
@@ -87,7 +85,7 @@ This repository contains a comprehensive tutorial designed to help you develop p
 
 The goal of this tutorial is to design various Internet of Things (IoT) applications through experimentation, creation, and validation of functional projects. By combining technological insights with practical, hands-on project-based learning, you will gain a comprehensive understanding of the components that make up a connected system, ranging from sensor selection to data processing in cloud and Artificial Intelligence (AI).
 
-We will utilize different electronic development boards along with two development environments: MBed OS and STM32CubeIDE. Each section of this tutorial will be dedicated to teaching essential concepts of both development environments, IoT implementations, ThingSpeak cloud, and embedded AI. These tutorials are designed to inspire you to implement your own projects.
+We will use different electronic development boards along with two development environments: MBed OS and STM32CubeIDE. Each section of this tutorial will be dedicated to teaching essential concepts of both development environments, IoT implementations, ThingSpeak cloud, and embedded AI. These tutorials are designed to inspire you to implement your own projects.
 
 This material covers several key areas. First, it focuses on electronic design and integration, involving the selection and integration of sensors and other electronic components. Next, it addresses processing and communication, which includes programming in C, processing on the embedded board, and implementing communication protocols. The tutorial also delves into the implementation of AI, where you will learn to use pre-trained AI models in your embedded projects. Finally, it also explores data processing and application on a server via ThingSpeak, covering data handling and visualization on a cloud-based server.
 
@@ -1531,7 +1529,7 @@ Additionally, we must use the most updated firmware version available at the mom
 git checkout vX.Y.Z # Specify the targeted vX.Y.Z version
 ```
 
-In the `STM32CubeU5` repository, there are examples and demonstration projects using all U5 series boards developed by `STMicroelectronics`, applying various libraries and integrated modules of the boards. One of these projects utilizes the `MXChip` WiFi module on the `B-U585I-IOT02A` for TCP/IP communication with a server.
+In the `STM32CubeU5` repository, there are examples and demonstration projects using all U5 series boards developed by `STMicroelectronics`, applying various libraries and integrated modules of the boards. One of these projects uses the `MXChip` WiFi module on the `B-U585I-IOT02A` for TCP/IP communication with a server.
 
 We will use this base project, modifying the server to `ThingSpeak` and sending a fixed value that can be visualized on the website. The project is located in the following path in the folder where you downloaded it: `STM32CubeU5/Projects/B-U585I-IOT02A/Applications/NetXDuo/Nx_UDP_Echo_Client`.
 
@@ -1573,7 +1571,7 @@ By opening the `.ioc` file, which is the `STM32CubeMX` configuration file for gr
 
 **NetX/NetXDuo** is a high-performance TCP/IP network stack tailored for ThreadX. It facilitates robust network communication in embedded applications, supporting both IPv4 and IPv6 protocols. NetXDuo extends the capabilities of NetX with enhanced features.
 
-This project integrates ThreadX and NetX/NetXDuo to create a TCP echo client. It demonstrates how these components can be effectively utilized to develop sophisticated networked applications on STM32 microcontrollers. The objective is to implement a TCP client that sends messages to a server and receives corresponding responses, which are then printed on a terminal.
+This project integrates ThreadX and NetX/NetXDuo to create a TCP echo client. It demonstrates how these components can be effectively implemented to develop sophisticated networked applications on STM32 microcontrollers. The objective is to implement a TCP client that sends messages to a server and receives corresponding responses, which are then printed on a terminal.
 
 The main codes for this application that we will analyze are the ones present in:
 
@@ -1895,7 +1893,7 @@ The primary advantages of this approach include:
 - **Network Independence**: Operates without constant internet connectivity.
 - **High Performance**: Capable of handling demanding tasks efficiently.
 
-Devices with embedded AI are becoming increasingly common and diverse. Examples include smart cameras that can process images in real-time, voice assistants that understand and respond to commands without delay, industrial robots that adapt to their environments, autonomous vehicles that navigate without human intervention, and various IoT devices that perform complex tasks independently. These systems utilize AI algorithms to enhance their capabilities, making them smarter and more efficient.
+Devices with embedded AI are becoming increasingly common and diverse. Examples include smart cameras that can process images in real-time, voice assistants that understand and respond to commands without delay, industrial robots that adapt to their environments, autonomous vehicles that navigate without human intervention, and various IoT devices that perform complex tasks independently. These systems use AI algorithms to enhance their capabilities, making them smarter and more efficient.
 
 In this chapter, we will introduce the fundamental concepts of edge AI using microcontrollers. This knowledge will enable you to integrate your own models into the topics discussed in previous chapters, allowing you to create a complete network. With this approach, you can:
 
@@ -1946,7 +1944,7 @@ The same file is also available at:
 
 ## 3. Installing the X-Cube-AI Package
 
-`X-CUBE-AI` is an STM32Cube Expansion Package, part of the `STM32Cube.AI` ecosystem. With this package, we can utilize functionalities for the automatic conversion of pretrained artificial intelligence algorithms, including neural network and classical machine learning models, into our C code as optimized libraries to be implemented on the microcontroller.
+`X-CUBE-AI` is an STM32Cube Expansion Package, part of the `STM32Cube.AI` ecosystem. With this package, we can implement functionalities for the automatic conversion of pretrained artificial intelligence algorithms, including neural network and classical machine learning models, into our C code as optimized libraries to be implemented on the microcontroller.
 
 To do this, follow these steps:
 
@@ -1969,7 +1967,7 @@ To do this, follow these steps:
         <img src="images/35.png" alt="figure 65"/>
     </p>
 
-5. Install version `5.3.0` by clicking **Install**. `Do not use another version`, as the implementation of the package libraries may differ from what is shown here.
+5. Install version `5.2.0` by clicking **Install**. `Do not use another version`, as the implementation of the package libraries may differ from what is shown here.
 
     <p align="center">
         <img src="images/36.png" alt="figure 66"/>
