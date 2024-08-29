@@ -1,0 +1,15 @@
+../X-CUBE-AI/App/app_x-cube-ai.c:71:6:MX_X_CUBE_AI_Init	8	static
+../X-CUBE-AI/App/app_x-cube-ai.c:79:6:MX_X_CUBE_AI_Process	8	static
+../X-CUBE-AI/App/app_x-cube-ai.c:120:9:ai_mnetwork_is_valid	24	static
+../X-CUBE-AI/App/app_x-cube-ai.c:130:26:ai_mnetwork_handle	24	static
+../X-CUBE-AI/App/app_x-cube-ai.c:142:6:ai_mnetwork_release_handle	24	static
+../X-CUBE-AI/App/app_x-cube-ai.c:153:13:ai_mnetwork_find	24	static
+../X-CUBE-AI/App/app_x-cube-ai.c:170:10:ai_mnetwork_create	48	static
+../X-CUBE-AI/App/app_x-cube-ai.c:212:11:ai_mnetwork_destroy	24	static
+../X-CUBE-AI/App/app_x-cube-ai.c:227:9:ai_mnetwork_get_info	24	static
+../X-CUBE-AI/App/app_x-cube-ai.c:238:10:ai_mnetwork_get_error	24	static
+../X-CUBE-AI/App/app_x-cube-ai.c:253:9:ai_mnetwork_init	80	static
+../X-CUBE-AI/App/app_x-cube-ai.c:282:8:ai_mnetwork_run	32	static
+../X-CUBE-AI/App/app_x-cube-ai.c:307:8:ai_mnetwork_forward	24	static
+../X-CUBE-AI/App/app_x-cube-ai.c:318:6:ai_mnetwork_get_private_handle	40	static
+../X-CUBE-AI/App/app_x-cube-ai.c:334:5:ai_mnetwork_get_ext_data_activations	32	static

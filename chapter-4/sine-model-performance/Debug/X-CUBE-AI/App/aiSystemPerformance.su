@@ -1,0 +1,17 @@
+../X-CUBE-AI/App/aiTestUtility.h:223:22:dwtReset	4	static
+../X-CUBE-AI/App/aiTestUtility.h:227:27:dwtGetCycles	4	static
+../X-CUBE-AI/App/aiTestUtility.h:243:22:cyclesCounterInit	24	static
+../X-CUBE-AI/App/aiTestUtility.h:251:22:cyclesCounterStart	8	static
+../X-CUBE-AI/App/aiTestUtility.h:258:26:cyclesCounterEnd	104	static
+../X-CUBE-AI/App/aiTestUtility.h:293:26:disableInts	16	static,ignoring_inline_asm
+../X-CUBE-AI/App/aiSystemPerformance.c:146:12:aiBootstrap	80	static
+../X-CUBE-AI/App/aiSystemPerformance.c:227:12:aiInit	24	static
+../X-CUBE-AI/App/aiSystemPerformance.c:258:13:aiDeInit	16	static
+../X-CUBE-AI/App/aiSystemPerformance.c:297:15:user_observer_cb	112	static
+../X-CUBE-AI/App/aiSystemPerformance.c:321:6:aiObserverInit	80	static
+../X-CUBE-AI/App/aiSystemPerformance.c:360:6:aiObserverDone	200	static
+../X-CUBE-AI/App/aiSystemPerformance.c:429:12:aiTestPerformance	368	static,ignoring_inline_asm
+../X-CUBE-AI/App/aiSystemPerformance.c:646:12:aiTestConsole	16	static
+../X-CUBE-AI/App/aiSystemPerformance.c:680:5:aiSystemPerformanceInit	8	static
+../X-CUBE-AI/App/aiSystemPerformance.c:699:5:aiSystemPerformanceProcess	16	static
+../X-CUBE-AI/App/aiSystemPerformance.c:776:6:aiSystemPerformanceDeInit	8	static

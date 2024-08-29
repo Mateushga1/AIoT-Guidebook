@@ -1,0 +1,17 @@
+../X-CUBE-AI/App/aiTestUtility.h:223:22:dwtReset	1
+../X-CUBE-AI/App/aiTestUtility.h:227:27:dwtGetCycles	1
+../X-CUBE-AI/App/aiTestUtility.h:243:22:cyclesCounterInit	1
+../X-CUBE-AI/App/aiTestUtility.h:251:22:cyclesCounterStart	1
+../X-CUBE-AI/App/aiTestUtility.h:258:26:cyclesCounterEnd	2
+../X-CUBE-AI/App/aiTestUtility.h:293:26:disableInts	1
+../X-CUBE-AI/App/aiSystemPerformance.c:146:12:aiBootstrap	7
+../X-CUBE-AI/App/aiSystemPerformance.c:227:12:aiInit	5
+../X-CUBE-AI/App/aiSystemPerformance.c:258:13:aiDeInit	4
+../X-CUBE-AI/App/aiSystemPerformance.c:297:15:user_observer_cb	2
+../X-CUBE-AI/App/aiSystemPerformance.c:321:6:aiObserverInit	6
+../X-CUBE-AI/App/aiSystemPerformance.c:360:6:aiObserverDone	7
+../X-CUBE-AI/App/aiSystemPerformance.c:429:12:aiTestPerformance	30
+../X-CUBE-AI/App/aiSystemPerformance.c:646:12:aiTestConsole	15
+../X-CUBE-AI/App/aiSystemPerformance.c:680:5:aiSystemPerformanceInit	1
+../X-CUBE-AI/App/aiSystemPerformance.c:699:5:aiSystemPerformanceProcess	13
+../X-CUBE-AI/App/aiSystemPerformance.c:776:6:aiSystemPerformanceDeInit	1

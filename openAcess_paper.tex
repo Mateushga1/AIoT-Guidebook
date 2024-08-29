@@ -990,7 +990,7 @@ Now, you can verify that the floating point numbers are displayed correctly.
 \end{figure}
 
 \begin{center}
-  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/schapter-2/internal-sensors}{\faFolder\texttt{\ chapter-2/internal-sensors}}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-2/internal-sensors}{\faFolder\texttt{\ chapter-2/internal-sensors}}
 \end{center}
 
 \hypertarget{sensors-tutorial}{%
@@ -3780,10 +3780,246 @@ the code size and potentially improving inference time. To do this:
   Check your terminal output.
 \end{enumerate}
 
-In my case, the differences were minimal (only 1 microsecond faster
+In this case, the differences were minimal (only 1 microsecond faster
 inference time), but depending on the size of your code,
 functionalities, and the microcontroller used, the impact may be more
 significant.
+
+\hypertarget{performance-analysis}{%
+\subsection{8. Performance Analysis}\label{performance-analysis}}
+
+After confirming that the model runs correctly on the microcontroller,
+it is possible to analyze its performance, particularly when executing multiple
+inferences. For this, you will use an application provided by the
+\texttt{X-CUBE-AI} package. However, some modifications to the project
+will be necessary, so you must start by a new one.
+
+This performance metric analysis procedure is based on the tutorial
+developed by \texttt{ST~Microelectronics}, which is available here:
+\href{https://wiki.st.com/stm32mcu/index.php?title=AI:How_to_measure_machine_learning_model_power_consumption_with_STM32Cube.AI_generated_application\&direction=prev\&oldid=24537\#}{How
+to measure machine learning model power consumption with STM32Cube.AI
+generated application}.
+
+Follow these steps:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Start a new project, select the same development board, assign a name,
+  and choose not to initialize the peripherals. This will be important
+  to minimize unnecessary power consumption.
+\item
+  Once the STM32CubeMX interface opens, add the \texttt{X-CUBE-AI}
+  package as before. However, this time, also add the system performance
+  application.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-3cm\relax,keepaspectratio]{images/65.png}
+    \end{center}
+  \end{figure}
+  
+\item
+  In \textbf{Middlewares and Software Packs -\textgreater{} Platform
+  Settings}, identify the port that \texttt{X-CUBE-AI} uses to
+  communicate with the board. Since the development board has an STLink
+  connector, which is the USB port used for connecting to the computer,
+  simply identify which serial port is connected to this connector. To
+  find this, refer to the datasheet for your board. For the
+  \texttt{B-U585I-IOT02A}, it is \texttt{USART1}.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-3cm\relax,keepaspectratio]{images/66.png}
+    \end{center}
+  \end{figure}
+
+\item
+  Next, disable all unused pins to prevent interference with the board's
+  power consumption analysis. This will ensure that only the essential
+  peripherals and the model are consuming power. To do this,
+  right-click on each pin and select \textbf{Reset\_State}, which will
+  remove the default configurations, except for the Rx and Tx pins,
+  which will be used for serial communication with the computer (these
+  are the two green pins with a pin icon in the images below).
+
+  \begin{figure}[H]
+    \centering
+    \subfigure{\includegraphics[width=0.30\textwidth]{images/67.png}}
+    \subfigure{\includegraphics[width=0.30\textwidth]{images/68.png}}
+  \end{figure}
+
+\item
+  The next step is to import the model as done previously, but this
+  time, also access the advanced settings and enable the two options
+  shown below. Afterward, analyze your model to ensure everything is
+  correct and that no errors are present.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-3cm\relax,keepaspectratio]{images/69.png}
+    \end{center}
+  \end{figure}
+
+\item
+  The final project configuration will be in \textbf{Project Manager
+  -\textgreater{} Code Generator}, where you need to apply the following
+  modifications. Finally, save your project and generate the code.
+
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-3cm\relax,keepaspectratio]{images/70.png}
+    \end{center}
+  \end{figure}
+
+\item
+  Once the code is generated, a few modifications will be necessary. The
+  first is to create a function to disable the GPIO clock during power
+  measurement. To do this, create the function below. It will vary
+  depending on the board you are using, so the best approach is to find
+  the \texttt{MX\_GPIO\_Init} function in your \texttt{main.c}, copy its
+  contents, keep the pin names, and replace the function name with
+  \texttt{Disable}. Also, verify if the UART communication via STLink
+  found earlier is still \texttt{USART1}; if not, replace
+  \texttt{HAL\_UART\_DeInit(\&huart1)} and adjust the microcontroller
+  pins in \texttt{GPIO\_InitStruct.Pin = GPIO\_PIN\_9\textbar{}GPIO\_PIN\_10}.
+
+  \begin{lstlisting}[style=CStyle]
+  /* Private user code ---------------------------------------------------------*/
+  /* USER CODE BEGIN 0 */
+  /**
+   * @brief Disable the clock of all GPIOs
+   * @param None
+   * @retval None
+   */
+  void MX_GPIO_Disable(void)
+  {
+      __HAL_RCC_GPIOE_CLK_DISABLE();
+      __HAL_RCC_GPIOI_CLK_DISABLE();
+      __HAL_RCC_GPIOG_CLK_DISABLE();
+      __HAL_RCC_GPIOC_CLK_DISABLE();
+      __HAL_RCC_GPIOA_CLK_DISABLE();
+      __HAL_RCC_GPIOH_CLK_DISABLE();
+      __HAL_RCC_GPIOB_CLK_DISABLE();
+      __HAL_RCC_GPIOD_CLK_DISABLE();
+      __HAL_RCC_GPIOF_CLK_DISABLE();
+  }
+
+  /**
+   * @brief Disable the VCOM UART
+   * @param None
+   * @retval None
+   */
+  void MX_UARTx_DeInit(void)
+  {
+      HAL_UART_DeInit(&huart1);
+      GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+      /*Configure GPIO pins : GPIO_PIN_9, GPIO_PIN_10 */
+      GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10;
+      GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+      GPIO_InitStruct.Pull = GPIO_NOPULL;
+      HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+  }
+  /* USER CODE END 0 */
+  \end{lstlisting}
+
+\item
+  Next, go to the
+  \texttt{X-CUBE-AI/App/app\_x-cube-ai.c} file and replace the entire
+  \texttt{ai\_mnetwork\_run} function with the updated version shown
+  below:
+
+  \textbf{Original:}
+
+  \begin{lstlisting}[style=CStyle]
+  AI_API_ENTRY
+  ai_i32 ai_mnetwork_run(ai_handle network, const ai_buffer* input,
+          ai_buffer* output)
+  {
+      struct network_instance* inn;
+      inn =  ai_mnetwork_handle((struct network_instance *)network);
+      if (inn)
+          return inn->entry->ai_run(inn->handle, input, output);
+      else
+          return 0;
+  }
+  \end{lstlisting}
+
+  \textbf{Modified:}
+
+  \begin{lstlisting}[style=CStyle]
+  extern void MX_UARTx_DeInit(void);
+  extern void MX_GPIO_Disable(void);
+  #define AI_MIN_LOOP 16
+
+  AI_API_ENTRY
+  ai_i32 ai_mnetwork_run(ai_handle network, const ai_buffer* input, ai_buffer* output)
+  {
+      struct network_instance* inn;
+      static ai_i32 Counter = 0;
+      inn =  ai_mnetwork_handle((struct network_instance *)network);
+      if (inn == NULL)
+          return 0;
+      if (Counter < AI_MIN_LOOP)
+      {
+          Counter++;
+          return inn->entry->ai_run(inn->handle, input, output);
+      }
+      else
+      {
+          printf("\nStarting infinite power measurement loop\n");
+          MX_UARTx_DeInit();
+          MX_GPIO_Disable();
+          while(1)
+          {
+              inn->entry->ai_run(inn->handle, input, output);
+          }
+      } 
+  }
+  \end{lstlisting}
+
+\item
+  Save the project, build it, and upload it to the board. You'll also
+  need to use a terminal, such as PuTTY or TeraTerm, to monitor the
+  serial communication. Open the software and configure it as follows:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Port: the STM32 COM port number
+  \item
+    Speed: 115200 bits/s
+  \item
+    Data bits: 8
+  \item
+    Parity: None
+  \item
+    Stop bits: 1
+  \item
+    Flow control: None
+  \end{itemize}
+
+\item
+  Finally, remove the \texttt{JP3} jumper from your board and connect the multimeter probes in current measurement mode to the two exposed connectors. The \texttt{JP3} jumper, labeled IDD, is used to measure the STM32 microcontroller's power consumption, the level shifter, and the SMPS (depending on the solder-bridge configuration). When the jumper is \texttt{ON}, the board is powered directly (default), but when it is \texttt{OFF}, a multimeter or an external 3.3 V power source must be connected to measure the microcontroller's consumption.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\dimexpr\textwidth-1cm\relax,height=\dimexpr0.25\textheight-3cm\relax,keepaspectratio]{images/71.png}
+  \end{center}
+\end{figure}
+
+\item
+  With everything configured and connected, power on your board, press the reset button, and observe the measurements in the terminal.
+
+\end{enumerate}
+
+The main measurements to observe are inference time and energy consumption by the model. In this tutorial, the model consumes 8.71 mA, with the same inference time as previously measured, 28 ms. As this is a very simple model, the consumption may not seem significant, but for more complex models, this consumption could be much higher, potentially causing issues depending on your application.
+
+\begin{center}
+  \href{https://github.com/Mateushga1/AIoT-Guidebook/blob/main/chapter-4/sine-model-performance}{\faFolder\texttt{\ chapter-4/sine-model-performance}}
+\end{center}
 
 \hypertarget{references}{%
 \section*{References}\label{references}}

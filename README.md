@@ -76,6 +76,7 @@ This repository contains a comprehensive tutorial designed to help you develop p
   - [5. Project Configuration](#5-project-configuration)
   - [6. Writing the Code](#6-writing-the-code)
   - [7. Debugging and Uploading to STM32](#7-debugging-and-uploading-to-stm32)
+  - [8. Performance Analysis](#8-performance-analysis)
 - [Glossary](#glossary)
 - [References](#references)
 
@@ -2254,7 +2255,164 @@ We can also run our code in `Release` mode on our microcontroller. This mode exc
 4. In the `Main` tab, select **Search Project** and select your `project_name/Release/project_name.elf` file from the bottom pane. Click **OK**. Select `Release` for your **Build Configuration**. Click **Apply** and **Run**.
 5. Check your terminal output.
 
-In my case, the differences were minimal (only 1 microsecond faster inference time), but depending on the size of your code, functionalities, and the microcontroller used, the impact may be more significant.
+In this case, the differences were minimal (only 1 microsecond faster inference time), but depending on the size of your code, functionalities, and the microcontroller used, the impact may be more significant.
+
+## 8. Performance Analysis
+
+After confirming that the model runs correctly on the microcontroller, it is possible to analyze its performance, particularly when executing multiple inferences. For this, you will use an application provided by the `X-CUBE-AI` package. However, some modifications to the project will be necessary, so we must start by a new one.
+
+This performance metric analysis procedure is based on the tutorial developed by `ST Microelectronics`, which is available here: [`How to measure machine learning model power consumption with STM32Cube.AI generated application`](https://wiki.st.com/stm32mcu/index.php?title=AI:How_to_measure_machine_learning_model_power_consumption_with_STM32Cube.AI_generated_application&direction=prev&oldid=24537#).
+
+Follow these steps:
+
+1. Start a new project, select the same development board, assign a name, and choose not to initialize the peripherals. This will be important to minimize unnecessary power consumption.
+2. Once the STM32CubeMX interface opens, add the `X-CUBE-AI` package as before. However, this time, also add the system performance application.
+
+    <p align="center">
+        <img src="images/65.png" alt="figure 78"/>
+    </p>
+
+3. In **Middlewares and Software Packs -> Platform Settings**, identify the port that `X-CUBE-AI` uses to communicate with the board. Since the development board has an STLink connector, which is the USB port used for connecting to the computer, simply identify which serial port is connected to this connector. To find this, refer to the datasheet for your board. For the `B-U585I-IOT02A`, it is `USART1`.
+
+    <p align="center">
+        <img src="images/66.png" alt="figure 79"/>
+    </p>
+
+4. Next, disable all unused pins to prevent interference with the board's power consumption analysis. This will ensure that only the essential peripherals and the model are consuming power. To do this, right-click on each pin and select **Reset_State**, which will remove the default configurations, except for the Rx and Tx pins, which will be used for serial communication with the computer (these are the two green pins with a pin icon in the images below).
+
+    <p align="center">
+        <img src="images/67.png" alt="figure 80"/>
+    </p>
+
+    <p align="center">
+        <img src="images/68.png" alt="figure 81"/>
+    </p>
+
+5. The next step is to import the model as done previously, but this time, also access the advanced settings and enable the two options shown below. Afterward, analyze your model to ensure everything is correct and that no errors are present.
+
+    <p align="center">
+        <img src="images/69.png" alt="figure 82"/>
+    </p>
+
+6. The final project configuration will be in **Project Manager -> Code Generator**, where you need to apply the following modifications. Finally, save your project and generate the code.
+
+    <p align="center">
+        <img src="images/70.png" alt="figure 83"/>
+    </p>
+
+7. Once the code is generated, a few modifications will be necessary. The first is to create a function to disable the GPIO clock during power measurement. To do this, create the function below. It will vary depending on the board you are using, so the best approach is to find the `MX_GPIO_Init` function in your `main.c`, copy its contents, keep the pin names, and replace the function name with `Disable`. Also, verify if the UART communication via STLink found earlier is still `USART1`; if not, replace `HAL_UART_DeInit(&huart1)` and adjust the microcontroller pins in `GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10`.
+
+    ```C
+    /* Private user code ---------------------------------------------------------*/
+    /* USER CODE BEGIN 0 */
+    /**
+     * @brief Disable the clock of all GPIOs
+     * @param None
+     * @retval None
+     */
+    void MX_GPIO_Disable(void)
+    {
+
+        __HAL_RCC_GPIOE_CLK_DISABLE();
+        __HAL_RCC_GPIOI_CLK_DISABLE();
+        __HAL_RCC_GPIOG_CLK_DISABLE();
+        __HAL_RCC_GPIOC_CLK_DISABLE();
+        __HAL_RCC_GPIOA_CLK_DISABLE();
+        __HAL_RCC_GPIOH_CLK_DISABLE();
+        __HAL_RCC_GPIOB_CLK_DISABLE();
+        __HAL_RCC_GPIOD_CLK_DISABLE();
+        __HAL_RCC_GPIOF_CLK_DISABLE();
+    }
+
+    /**
+     * @brief Disable the VCOM UART
+     * @param None
+     * @retval None
+     */
+    void MX_UARTx_DeInit(void)
+    {
+    HAL_UART_DeInit(&huart1);
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    /*Configure GPIO pins : GPIO_PIN_9, GPIO_PIN_10 */
+    GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+    }
+    /* USER CODE END 0 */
+    ```
+
+8. Next, go to the [`X-CUBE-AI/App/app_x-cube-ai.c`](chapter-4/sine-model-performance/X-CUBE-AI/App/app_x-cube-ai.c) file and replace the entire `ai_mnetwork_run` function with the updated version shown below:
+
+    - Original:
+
+    ```C
+    AI_API_ENTRY
+    ai_i32 ai_mnetwork_run(ai_handle network, const ai_buffer* input,
+            ai_buffer* output)
+    {
+        struct network_instance* inn;
+        inn =  ai_mnetwork_handle((struct network_instance *)network);
+        if (inn)
+            return inn->entry->ai_run(inn->handle, input, output);
+        else
+            return 0;
+    }
+    ```
+
+    - Modified:
+
+    ```C
+    extern void MX_UARTx_DeInit(void);
+    extern void MX_GPIO_Disable(void);
+    #define AI_MIN_LOOP 16
+
+    AI_API_ENTRY
+    ai_i32 ai_mnetwork_run(ai_handle network, const ai_buffer* input, ai_buffer* output)
+    {
+        struct network_instance* inn;
+        static ai_i32 Counter = 0;
+        inn =  ai_mnetwork_handle((struct network_instance *)network);
+        if (inn == NULL)
+            return 0;
+        if (Counter < AI_MIN_LOOP)
+        {
+            Counter++;
+            return inn->entry->ai_run(inn->handle, input, output);
+        }
+        else
+        {
+            printf("\nStarting infinite power measurement loop\n");
+            MX_UARTx_DeInit();
+            MX_GPIO_Disable();
+            while(1)
+            {
+            inn->entry->ai_run(inn->handle, input, output);
+            }
+        } 
+    }
+    ```
+
+9. Save the project, build it, and upload it to the board. You'll also need to use a terminal, such as PuTTY or TeraTerm, to monitor the serial communication. Open the software and configure it as follows:
+    - Port: the STM32 COM port number
+    - Speed: 115200 bits/s
+    - Data: 8 bits
+    - Parity: none
+    - Stop bits: 1 bit
+    - Flow control: none
+
+10. Finally, remove the JP3 jumper from your board and connect the multimeter probes in current measurement mode to the two exposed connectors. The JP3 jumper, labeled IDD, is used to measure the STM32 microcontroller's power consumption, the level shifter, and the SMPS (depending on the solder-bridge configuration). When the jumper is ON, the board is powered directly (default), but when it is OFF, a multimeter or an external 3.3 V power source must be connected to measure the microcontroller's consumption.
+
+    <p align="center">
+        <img src="images/71.png" alt="figure 84"/>
+    </p>
+
+11. With everything configured and connected, power on your board, press the reset button, and observe the measurements in the terminal.
+
+The main measurements to observe are inference time and energy consumption by the model. In this tutorial, the model consumes 8.71 mA, with the same inference time as previously measured, 28 ms. As this is a very simple model, the consumption may not seem significant, but for more complex models, this consumption could be much higher, potentially causing issues depending on your application.
+
+📁 [`chapter-4/sine-model-performance`](chapter-4/sine-model-performance)
 
 # Glossary
 
@@ -2317,3 +2475,4 @@ In my case, the differences were minimal (only 1 microsecond faster inference ti
 [19] [TinyML: Getting Started with STM32 X-CUBE-AI](https://www.digikey.fr/en/maker/projects/tinyml-getting-started-with-stm32-x-cube-ai/f94e1c8bfc1e4b6291d0f672d780d2c0)  
 [20] [TensorFlow Lite Official Website](https://www.tensorflow.org/lite)  
 [21] [X-CUBE-AI Package](https://www.st.com/en/embedded-software/x-cube-ai.html#get-software)  
+[22] [How to measure machine learning model power consumption with STM32Cube.AI generated application](https://wiki.st.com/stm32mcu/index.php?title=AI:How_to_measure_machine_learning_model_power_consumption_with_STM32Cube.AI_generated_application&direction=prev&oldid=24537#)
