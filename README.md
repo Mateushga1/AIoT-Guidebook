@@ -2209,7 +2209,10 @@ while (1)
     // Wait before doing it again
     HAL_Delay(500);
 
-/* USER CODE END WHILE */
+    /* USER CODE END WHILE */
+    /* USER CODE BEGIN 3 */
+}
+/* USER CODE END 3 */
 ```
 
 - **Fill Input Buffer**: The `for` loop fills the input buffer `in_data` with a test value (2.0f) for inference.
