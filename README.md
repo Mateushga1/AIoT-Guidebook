@@ -68,7 +68,15 @@ This repository contains a comprehensive tutorial designed to help you develop p
     - [3.1 Updating the WiFi Module Firmware](#31-updating-the-wifi-module-firmware)
     - [3.2 Understanding the Base Project and Its Configurations](#32-understanding-the-base-project-and-its-configurations)
     - [3.3 Implementing Communication with ThingSpeak](#33-implementing-communication-with-thingspeak)
-- [Chapter 4: Integrating AI into Edge Devices](#chapter-4-integrating-ai-into-edge-devices)
+- [Chapter 4: Training AI Models using TensorFlow](#chapter-4-training-ai-models-using-tensorflow)
+  - [1. Overview](#1-overview)
+  - [2. Up and Running with TensorFlow](#2-up-and-running-with-tensorflow)
+  - [3. Supervised Learning and the Train/Test Scheme](#3-supervised-learning-and-the-train-test-scheme)
+  - [4. TensorFlow and Graph Computation](#4-tensorflow-and-graph-computation)
+  - [5. Creating TensorFlow Models](#5-creating-tensorflow-models)
+  - [6. Defining a Linear Graph for a Neural Network](#6-defining-a-linear-graph-for-a-neural-network)
+  - [7. Training Neural Networks](#7-training-neural-networks)
+- [Chapter 5: Integrating AI into Edge Devices](#chapter-5-integrating-ai-into-edge-devices)
   - [1. Overview of Embedded AI](#1-overview-of-embedded-ai)
   - [2. Exporting the Model](#2-exporting-the-model)
   - [3. Installing the X-Cube-AI Package](#3-installing-the-x-cube-ai-package)
@@ -1880,9 +1888,593 @@ With these modifications made, simply build the project via **Project -> Build P
   <img src="images/54.png" alt="figure 58" width="425"/> <img src="images/55.png" alt="figure 59" width="425"/>
 </p>
 
-# Chapter 4: Integrating AI into Edge Devices
+# Chapter 4: Training AI Models using Tensorflow
+## 1. Overview
+TensorFlow is as a central framework for building, training, and deploying deep learning systems, while situating it within the broader evolution of machine learning and artificial intelligence. [Hope et al. (2017)](https://www.oreilly.com/library/view/learning-tensorflow/9781491978504/) aim to provide both conceptual grounding and a practical starting point, emphasizing TensorFlow’s design philosophy, flexibility, and suitability for real-world AI applications.
 
-## 1. Overview of Embedded AI
+Such book [23] begins with an overview of deep learning and its rapid rise as the dominant approach for solving complex learning problems. Deep neural networks, loosely inspired by biological neural systems, are capable of automatically learning hierarchical representations from raw data. Instead of relying on handcrafted features, deep learning models extract increasingly abstract features directly from inputs such as pixels, text tokens, or audio signals. This ability has led to major advances in areas such as computer vision, natural language processing, speech recognition, and emerging fields like genomics and healthcare analytics. It is know that the success of deep learning is driven not only by improved algorithms, but also by the availability of large datasets and powerful computational resources.
+
+Within this context, TensorFlow is presented as Google’s open-source framework for implementing and deploying deep learning models at scale. Originally developed as a successor to Google’s internal DistBelief system, TensorFlow was released publicly in 2015 and quickly became the leading platform for deep learning research and production. Its popularity stems from a combination of scalability, performance, flexibility, and strong industry backing. TensorFlow is not limited to experimentation: it is designed to support the full lifecycle of machine learning systems, from research and prototyping to large-scale distributed training and deployment in production environments. Much advances have been done in last ten years, but still [Google Collab](https://colab.research.google.com/) is a reliable tool in terms of AI developpment and learning Tensorflow library.
+
+TensorFlow’s real-world relevance through several application domains is well know in the literature. Pretrained computer vision models enable users to apply state-of-the-art image classification without training networks from scratch. Multimodal systems combine vision and language to generate natural language descriptions of images. In natural language processing, TensorFlow supports tasks such as text summarization, classification, and sequence modeling. These examples emphasize a key theme: TensorFlow lowers the barrier to entry by providing reusable components and pretrained models while remaining flexible enough for advanced customization.
+
+TensorFlow represents computations as dataflow graphs, where nodes correspond to operations and edges represent tensors flowing between them. Tensors are multidimensional arrays that generalize scalars, vectors, and matrices, and they form the fundamental data structure of deep learning. By separating graph definition from execution, TensorFlow enables optimizations such as parallel execution, efficient memory management, and deployment across heterogeneous hardware, including CPUs, GPUs, mobile devices, and distributed clusters.
+
+The same model definition can be trained locally, distributed across many machines, or deployed on resource-constrained devices with minimal changes. TensorFlow’s automatic differentiation mechanism relieves users from manually computing gradients, making it easier to experiment with new architectures and optimization methods. To support usability and experimentation, TensorFlow includes TensorBoard, a visualization tool for monitoring training progress, inspecting graphs, and comparing experiments. High-level abstraction libraries such as Keras and TF-Slim further simplify model construction by providing reusable building blocks and concise APIs, bridging the gap between low-level control and high-level productivity.
+
+From this point, the reader should set up his own [Google Collab](https://colab.research.google.com/) and upload the exercise file avaliable in [`chapter-4/TF_Tutorial_v2.ipynb`](chapter-4/TF_Tutorial_v2.ipynb). Following sections will explain the examples avaliable in Jupyter notebook.
+
+## 2. Up and Running with TensorFlow
+Let's transitions from conceptual overview to hands-on usage, guiding the reader through the process of getting TensorFlow up and running. [Tutorial](chapter-4/TF_Tutorial_v2.ipynb) begins with installation instructions, recommending the use of virtual environments to isolate dependencies. The authors deliberately start with the CPU version to ensure accessibility and ease of setup, deferring GPU configuration to later stages. This pragmatic approach reinforces [Hope's (2017)](https://www.oreilly.com/library/view/learning-tensorflow/9781491978504/)emphasis on gradual learning. Please have installed an evironment for 
+| Python | TensorFlow  | CUDA | cuDNN |
+|--------|-------------|------|-------|
+| 3.10   | 2.15.0+     | 12.1 | 8.9   |
+
+Be aware of TensorFlow and CUDA compatibility among avaliable versions to be sure that the following codes will function properly.
+
+The first practical example is a minimal “Hello World” program, which demonstrates TensorFlow’s execution model. Unlike standard Python code, TensorFlow operations do not immediately compute results. Instead, they add nodes to a computation graph. Actual computation occurs only when the graph is executed within a session. This example introduces fundamental elements such as constants, operations, and sessions, illustrating the distinction between defining a computation and running it. Although simple, the example foreshadows key ideas that underpin all TensorFlow programs.
+```python
+import tensorflow as tf
+print(tf.test.is_built_with_cuda())
+GPU=tf.config.experimental.list_physical_devices('GPU')
+print("Num GPUs Available: ", len(GPU))
+if GPU:
+    try:
+        for gpu in GPU:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        print("Memory growth set for GPU.")
+    except RuntimeError as e:
+        print(e)
+h = tf.constant("Hello")
+w = tf.constant(" World!")
+hw = h+w
+print(hw.numpy().decode("utf-8"))
+```
+[Tutorial](chapter-4/TF_Tutorial_v2.ipynb) presents a complete, though simple, machine learning application: handwritten digit classification using the MNIST dataset. MNIST serves as a canonical benchmark in machine learning and provides a manageable introduction to supervised learning. The authors implement a softmax regression model, deliberately choosing a linear classifier to focus on TensorFlow mechanics rather than model complexity. The model treats each image as a flat vector of pixel values and learns weights that associate pixel intensities with digit classes.
+    <p align="center">
+            <img src="images/MNIST_dataset.png" alt="MNIST Dataset"/>
+    </p>
+
+```python
+%matplotlib inline
+import tensorflow as tf
+from tensorflow.keras.utils import plot_model
+from callbackPlots import AccuracyPlotCallback
+from callbackPlots import count_neurons_and_synapses
+import numpy as np
+import random
+
+np.random.seed(42)
+tf.random.set_seed(42)
+random.seed(42)
+
+# Load MNIST dataset
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+
+# Normalize the data
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+print(f"Training set size: {x_train.shape}, Test set size: {x_test.shape}")
+
+# Flatten images (28x28 -> 784)
+x_train = x_train.reshape(-1, 784)
+x_test = x_test.reshape(-1, 784)
+
+# Convert labels to one-hot encoding
+y_train = tf.keras.utils.to_categorical(y_train, 10)
+y_test = tf.keras.utils.to_categorical(y_test, 10)
+
+# Build a simple softmax classifier
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(10, activation='softmax', input_shape=(784,))
+])
+
+# Compile model
+model.compile(optimizer='adam',
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Create the callback instance
+plot_callback = AccuracyPlotCallback()
+
+# Debugging: Print if the callback is created correctly
+print(f"Callback created: {plot_callback}")
+
+# Train the model with the callback
+model.fit(x_train, y_train, epochs=5, batch_size=32, validation_data=(x_test, y_test), callbacks=[plot_callback])
+
+# Evaluate the model
+test_loss, test_acc = model.evaluate(x_test, y_test)
+print(f"Test accuracy: {test_acc:.4f}")
+
+# Save the model architecture as a PNG file
+plot_model(model, to_file="model_architecture.png", show_shapes=True, show_layer_names=True, dpi=300)
+
+# Call the function
+count_neurons_and_synapses(model)
+```
+Through this example, several essential TensorFlow concepts can be found. Placeholders represent inputs that are supplied at execution time, while variables represent model parameters that are updated during training. The computation graph includes operations for prediction, loss calculation using cross-entropy, and optimization via gradient descent. Training proceeds iteratively using mini-batches of data, reflecting standard practices in machine learning. Evaluation is performed on a held-out test set, reinforcing the distinction between training and generalization performance.
+
+This example also introduces the train/test paradigm of supervised learning and discusses stochasticity in optimization, explaining why repeated runs may yield slightly different accuracy results. Practical considerations, such as memory limitations when evaluating large datasets, should be considered, highlighting that real-world machine learning involves both conceptual and engineering challenges.
+
+## 3. Supervised Learning and the Train/Test Scheme
+Supervised learning generally refers to the task of learning a function from data objects to labels associated with them, based on a set of examples where the correct labels are already known. This is usually subdivided into the case where labels are continuous (regression) or discrete (classification).
+
+The purpose of training supervised learning models is almost always to apply them later to new examples with unknown labels called inference phase, in order to obtain predicted labels for them. In the MNIST case discussed in this section, the purpose of training the model would probably be to apply it on new handwritten digit images and automatically find out what digits they represent.
+
+As a result, we are interested in the extent to which our model will label new examples correctly. This is reflected in the way we evaluate the accuracy of the model. We first partition the labeled dataset into train and test partitions. During model training, we use only the train partition, and during validation we test the accuracy only on the test partition. This scheme is generally known as a train/test validation.
+
+The actual training of the model, in the stochastic gradient descent (SGD) approach, consists of taking many steps in “the right direction.” The SGD optimizer used in this example is Adam. The cost function used is a cross entropy pre-defined fuction. The metric is the model accuracy, which is plotted during training and validation.
+
+In this example,we learn what is a epoch and a batch_size. To correclty define them, we have found.
+An epoch is one full pass over the entire training dataset. The number of epochs affects:
+
+✅ Training Time:
+
+- More epochs = longer training time.
+- Too many epochs can lead to overfitting, where the model memorizes the training data instead of generalizing.
+
+✅ Model Performance:
+
+- 5 epochs is often enough for simple datasets like MNIST because the softmax classifier is relatively simple.
+- More complex models may require more epochs to learn complex patterns.
+- If accuracy is low after 5 epochs, increasing the number of epochs (e.g., 10 or 20) can improve performance.
+
+🚀 How to choose the right number of epochs?
+Use early stopping to stop training when the validation accuracy stops improving. Example:
+```python
+early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
+model.fit(x_train, y_train, epochs=50, batch_size=32, validation_data=(x_test, y_test), callbacks=[early_stopping])
+```
+
+The batch size determines how many training samples are processed before updating the model's weights.
+
+✅ Effect on Memory:
+
+- A larger batch size (e.g., 128, 256) requires more GPU/CPU memory but speeds up training.
+- A smaller batch size (e.g., 16 or 32) takes longer but uses less memory.
+
+✅ Effect on Model Performance:
+
+- Smaller batch sizes (e.g., 32, 64) → More stable updates, better generalization.
+- Larger batch sizes (e.g., 128, 256) → Faster training but may generalize worse.
+
+🚀 How to choose the right batch size?
+
+-  32 or 64 is a good starting point for most problems. <- Golden Number from Rule of Thumb
+- If training is slow, increase batch size (but check GPU memory usage).
+- If results fluctuate a lot, try smaller batch sizes (e.g., 16).
+
+The result is a neural network model described as:
+- Input Layer: 784 neurons (flattened 28×28 images)
+- Dense Output Layer: 10 neurons (softmax activation for classification)
+- This is a fully connected layer, every input neuron connects to every neuron in the next layer:
+
+$Synapses=Input Neurons×Output Neurons+Bias Terms$
+
+$Synapses=(784×10)+10=7850$
+
+[ Input Layer ] →  [ Dense Layer (784 neurons) ] → [ Output Layer (10 neurons, softmax) ]
+
+<p align="center">
+        <img src="images/model_architecture.png" alt="Model Architecture"/>
+</p>
+
+## 4. Tensorflow and Graph Computation
+Computation graphs is the core abstraction used by TensorFlow. In this model, computations are expressed as directed graphs in which nodes represent operations (such as arithmetic, matrix multiplication, or data transformations), and edges represent tensors, which carry data between operations. This structure allows TensorFlow to describe complex mathematical relationships in a modular and transparent way. Rather than executing operations immediately, TensorFlow first builds a static graph that defines what computations should occur and how they depend on one another.
+
+One major advantage of computation graphs is efficient execution. Because TensorFlow knows the dependencies between nodes, it can determine which operations must be computed to produce a requested result and skip all irrelevant parts of the graph. This dependency-aware execution enables optimizations such as parallel computation, reduced redundancy, and efficient use of hardware resources. It also lays the foundation for distributing computations across multiple devices or machines.
+
+Roughly speaking, working with TensorFlow involves two main phases: (1) constructing a graph and (2) executing it. Let’s jump into our first example and create something very basic. Graph Operations are described in the following table.
+
+| TensorFlow Operator    | Shortcut    | Description                                                             |
+|------------------------|-------------|-------------------------------------------------------------------------|
+| tf.add()               | a + b       | Adds a and b, element-wise.                                             |
+| tf.multiply()          | a * b       | Multiplies a and b, element-wise.                                       |
+| tf.subtract()          | a - b       | Subtracts a from b, element-wise.                                       |
+| tf.divide()            | a / b       | Computes Python-style division of a by b.                               |
+| tf.pow()               | a ** b      | Returns the result of raising each element in a to its corresponding element b, element-wise. |
+| tf.mod()               | a % b       | Returns the element-wise modulo.                                        |
+| tf.logical_and()       | a & b       | Returns the truth table of a & b, element-wise. dtype must be tf.bool.  |
+| tf.greater()           | a > b       | Returns the truth table of a > b, element-wise.                         |
+| tf.greater_equal()     | a >= b      | Returns the truth table of a >= b, element-wise.                        |
+| tf.less_equal()        | a <= b      | Returns the truth table of a <= b, element-wise.                        |
+| tf.less()              | a < b       | Returns the truth table of a < b, element-wise.                         |
+| tf.negative()          | -a          | Returns the negative value of each element in a.                        |
+| tf.logical_not()       | ~a          | Returns the logical NOT of each element in a. Only compatible with Tensor objects with dtype of tf.bool. |
+| tf.abs()               | abs(a)      | Returns the absolute value of each element in a.                        |
+| tf.logical_or()        | a \| b       | Returns the truth table of a | b, element-wise. dtype must be tf.bool.  |
+
+Let's do the graph example illustrated in the figure below.
+<p align="center">
+        <img src="images/graph_example.png" alt="Graph Example"/>
+</p>
+
+```python
+import tensorflow as tf
+
+a = tf.constant(5)
+b = tf.constant(2)
+c = tf.constant(3)
+
+d = tf.multiply(a,b)
+e = tf.add(c,b)
+f = tf.subtract(d,e)
+
+outs = f.numpy()  # To get the value of the tensor in eager execution mode
+print("outs = {}".format(outs))
+```
+
+### Basic Functions
+In our initial graph example, we request one specific node (node f) by passing the variable it was assigned to as an argument to the sess.run() method. This argument is called fetches, corresponding to the elements of the graph we wish to compute.
+
+In TensorFlow 2.x, the concept of graphs is abstracted away as TensorFlow 2.x operates in eager execution by default, and you no longer need to create and manage graphs manually like you did in TensorFlow 1.x. However it is interesting to understand how it works using the graph abstraction. The default behavior is eager execution,  and all operations happen immediately (eagerly), and you don’t need to manage a session or a graph manually. If you still want to use a graph in TensorFlow 2.x, you can enable graph execution by using tf.function, which creates a graph behind the scenes for optimization purposes. Be aware of your code readbility!
+
+The discussion shall turn to the nature of tensors, which give TensorFlow its name. In TensorFlow terminology, a Tensor is both a handle to an operation’s output in the graph and a mathematical object representing an n-dimensional array. Scalars, vectors, matrices, and higher-dimensional arrays are all treated uniformly as tensors. These tensors do not contain actual data until the graph is executed; instead, they act as symbolic references that define how data will flow during computation.
+
+Key tensor attributes include data type, shape, and name. Data types determine how values are stored and computed, with TensorFlow supporting a wide range of numerical, boolean, string, and complex types. Shape information specifies the dimensionality of tensors and is crucial for ensuring compatibility between operations. When necessary, tensors can be explicitly cast from one data type to another to avoid errors or control numerical precision. Here some comon functions from tensorflow library adn how to define tensors using such teminology in the following table.
+| TensorFlow Operation                        | Description |
+|---------------------------------------------|-------------|
+| `tf.constant(value)`                        | Creates a tensor populated with the specified value(s). |
+| `tf.fill(shape, value)`                     | Creates a tensor of shape `shape` and fills it with `value`. |
+| `tf.zeros(shape)`                           | Returns a tensor of shape `shape` with all elements set to `0`. |
+| `tf.zeros_like(tensor)`                     | Returns a tensor of the same type and shape as `tensor` with all elements set to `0`. |
+| `tf.ones(shape)`                            | Returns a tensor of shape `shape` with all elements set to `1`. |
+| `tf.ones_like(tensor)`                      | Returns a tensor of the same type and shape as `tensor` with all elements set to `1`. |
+| `tf.random_normal(shape, mean, stddev)`     | Outputs random values from a normal distribution. |
+| `tf.truncated_normal(shape, mean, stddev)`  | Outputs random values from a truncated normal distribution (values whose magnitude is more than two standard deviations from the mean are dropped and re-picked). |
+| `tf.random_uniform(shape, minval, maxval)`  | Generates values from a uniform distribution in the range `[minval, maxval)`. |
+| `tf.random_shuffle(tensor)`                 | Randomly shuffles a tensor along its first dimension. |
+
+An example of tensor multiplication is presented.
+```python
+import tensorflow as tf
+#Matrix operation example
+A = tf.constant([ [1,2,3],[4,5,6] ])
+print(A.get_shape())
+x = tf.constant([1,0,1])
+print(x.get_shape())
+x = tf.expand_dims(x,1)
+print(x.get_shape())
+b = tf.matmul(A,x)
+print("Ax = {}".format(b.numpy()))
+```
+### Using `tf.Variable`
+
+A TensorFlow variable is a tensor that can hold and update state (i.e., its value can change over time). Unlike ```python tf.constant()```, which creates an immutable tensor, ```python tf.Variable``` allows modification. Gradient Tracking for Training: tf.Variable is commonly used in training models because TensorFlow automatically tracks it for gradients, as in
+```python
+w = tf.Variable(tf.random.normal([3, 3]), trainable=True)
+```
+Here, ```python trainable=True``` ensures that TensorFlow optimizes the variable during backpropagation.
+```python
+import tensorflow as tf
+
+# Define a variable
+x = tf.Variable(10, dtype=tf.int32)
+
+# Print the initial value
+print("Initial value:", x.numpy())
+
+# Update the value
+x.assign(20)
+print("Updated value:", x.numpy())
+
+# Increment by 5
+x.assign_add(5)
+print("After increment:", x.numpy())
+
+# Decrement by 3
+x.assign_sub(3)
+print("After decrement:", x.numpy())
+
+#TensorFlow automatically tracks it for gradients, like in synapses weights
+w = tf.Variable(tf.random.normal([3, 3]), trainable=True)
+print("weights value:", w.numpy())
+```
+## 5. Creating Tensorflow Models
+TensorFlow, however,has designated built-in structures for feeding input values. These structures are called placeholders. Placeholders can be thought of as empty Variables that will be filled with data later on. We use them by first constructing our graph and only when it is executed feeding them with the input data. In TensorFlow 1.x, `tf.placeholder()` was used to create input tensors that would be fed values at runtime using feed_dict inside a `tf.Session()`. Since eager execution allows immediate computation, you can simply use function arguments or `tf.function` for graphs. Therefore, placeholder does not exist anymore.
+
+
+1️⃣ What is `tf.function()`?
+
+`tf.function()` is a decorator in TensorFlow 2.x that converts a Python function into a TensorFlow computation graph (also called a "Graph Execution" mode). This makes TensorFlow faster and more optimized compared to the default Eager Execution.
+
+🔹 Eager Execution (Default in TF 2.x): Operations are executed immediately.
+
+🔹 Graph Execution (`tf.function`): TensorFlow compiles the function into a graph, optimizing it for speed.
+
+2️⃣ Why Use tf.function()?
+
+✅ Faster Execution: Converts the function into a TensorFlow graph for optimized execution.
+
+✅ Automatic Graph Optimization: TensorFlow optimizes the graph internally for performance.
+
+✅ Runs on GPU/TPU Efficiently: Graph execution is much faster on GPUs & TPUs.
+
+✅ Reduces Python Overhead: Removes unnecessary Python operations for efficiency.
+
+When you use `@tf.function`, TensorFlow compiles your Python function into a computation graph (also called Graph Execution). This graph is optimized for faster execution compared to normal Python functions (Eager Execution).
+📌 What Happens Internally?
+
+When you run `model(x_new)`, TensorFlow does the following steps behind the scenes:
+
+1️⃣ Function Tracing (First Call)
+
+- The first time `model(x_new)` is called, TensorFlow analyzes the Python function.
+- It converts TensorFlow operations (like `tf.matmul`) into a graph representation.
+- This process is called "tracing" and results in a TensorFlow computational graph.
+
+⏳ This step happens only once (on the first call). The function is then cached for reuse.
+
+2️⃣ Graph Compilation & Optimization
+
+- After tracing, TensorFlow compiles the graph.
+- It optimizes operations (e.g., removing redundant calculations, fusing operations together).
+- The resulting graph is much faster than normal Python execution.
+
+3️⃣ Graph Execution (On Subsequent Calls)
+
+- The next time you call `model(x_new)`, TensorFlow doesn’t execute the Python code again!
+- Instead, it reuses the compiled computation graph for maximum efficiency.
+- This is why `@tf.function` speeds up training and inference.
+
+## 6. Defining a Linear Graph for a Neural Network
+Let's assume some target variable y, which we want to explain using some feature vector
+x. To do so, we first choose a model that relates the two. Our training data points will
+be used for “tuning” the model so that it best captures the desired relation. In the fol‐
+lowing chapters we focus on deep neural network models, but for now we will settle
+for a simple regression problem.
+Let’s start by describing our regression model:
+
+$f(x_i) = w^Tx_i +b$
+
+$y_i = f(x_i) +\epsilon_i$
+
+$f(x_i)$ is assumed to be a linear combination of some input data xi, with a set of
+weights $w$ and an intercept $b$. Our target output $y_i$ is a noisy version of $f(x_i)$ after being
+summed with Gaussian noise $\epsilon_i$ (where $i$ denotes a given sample).
+
+
+### Linear Regression Step-by-Step
+```python
+# Trainable variables (weights & bias)
+w = tf.Variable(tf.random.normal([1, 3]), trainable=True, name='weights')
+b = tf.Variable(0.1, dtype=tf.float32, trainable=True, name='bias')
+noise = tf.constant(np.random.randn(2, 1) * 0.1, dtype=tf.float32)
+
+@tf.function
+def model(x):
+    return tf.matmul(x, tf.transpose(w)) + b + noise
+
+# Example input and output
+x_new = tf.Variable([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], dtype=tf.float32)
+y_true = tf.constant([[4.0], [10.0]], dtype=tf.float32)
+
+def compute_loss(y_true, y_pred):
+    return tf.reduce_mean(tf.square(y_pred - y_true))
+
+# Acuracy based on MAPE
+def compute_accuracy(y_true, y_pred):
+    # This formula directly calculates MAPE, which is a percentage.
+    mape = tf.reduce_mean(tf.abs((y_pred - y_true) / y_true))
+    # Return accuracy as 1 - MAPE, scaling the result to a proper range (0-1)
+    return 1 - mape
+
+# Training phase
+learning_rate = 0.0001
+optimizer = tf.optimizers.SGD(learning_rate)
+epochs = 500
+
+# Lists to store the loss and accuracy values for plotting
+loss_values = []
+accuracy_values = []
+
+for epoch in range(epochs):
+    with tf.GradientTape() as tape:
+        y_pred = model(x_new)
+        loss = compute_loss(y_true, y_pred)
+
+    gradients = tape.gradient(loss, [w, b])
+    optimizer.apply_gradients(zip(gradients, [w, b]))
+
+    if epoch % 50 == 0:
+        accuracy = compute_accuracy(y_true, y_pred)
+        loss_values.append(loss.numpy())
+        accuracy_values.append(accuracy.numpy())
+        print(f"Epoch {epoch}, Loss: {loss.numpy():.4f}, Accuracy: {accuracy.numpy():.4f}")
+```
+### Logistic Regression Step-by-Step
+Here, the linear component $f(x_i) = w^Tx_i +b$ is the input of a nonlinear function called the logistic
+function described as
+
+$P_r\left(y_i=1|x_i\right) = \frac{1}{1+ e^{wx_i +b}}$
+
+We then regard these values as probabilities from which binary yes/1 or no/0 outcomes are generated. This is the nondeterministic (noisy) part of the model.
+The logistic function is more general, and can be used with a different set of parameters for the steepness of the curve and its maximum value. This special case of a logistic function we are using is also referred to as a sigmoid function.
+```python
+# Trainable variables (weights & bias)
+w = tf.Variable(tf.random.normal([1, 3]), trainable=True,name='weights')
+b = tf.Variable(0.1, dtype=tf.float32, trainable=True, name='bias')
+noise = np.random.randn(2, 1) * 0.1  # Adjust noise to match shape
+
+@tf.function
+def sigmoid(x):
+    return 1 / (1 + tf.math.exp(-x))
+
+@tf.function
+def model(x):
+    logits = tf.matmul(x, tf.transpose(w)) + b  + noise # Keep raw logits
+    return tf.sigmoid(logits)
+
+
+# Example: Providing `x` dynamically
+x_new = tf.Variable([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], dtype=tf.float32)  # Dynamic input
+y_true = tf.constant([[0.7], [0.9]]) #y_i is now a probability bounded in [0,1] and I have 2 outputs in my neural network
+y_pred = model(x_new)
+
+
+# ✅ Fix loss function: Use Binary Cross-Entropy with probabilities
+def compute_loss(y_true, y_pred):
+    return tf.keras.losses.binary_crossentropy(y_true, y_pred)  # Proper BCE loss
+
+
+def compute_accuracy(y_true, y_pred):
+    abs_percentage_error = tf.abs((y_pred - y_true) / y_true)  # Absolute percentage error
+    mape = tf.reduce_mean(abs_percentage_error)  # Compute mean
+    accuracy = 1 - mape # accuracy based on MAPE
+    return tf.clip_by_value(accuracy, 0, 1)
+
+#Training phase
+learning_rate = 0.002 # The learning rate should be bigger for strong nonlinearities
+optimizer = tf.optimizers.SGD(learning_rate)
+
+# Training phase (multiple steps)
+epochs = 400  # Number of training steps is lesser if the learning rate is bigger
+
+# List to store the loss values for plotting
+loss_values = []
+accuracy_values = []
+
+for epoch in range(epochs):
+    with tf.GradientTape() as tape:
+        # Record operations for gradient computation
+        y_pred = model(x_new)  # Forward pass: model prediction
+        loss = compute_loss(y_true, y_pred)  # Compute the loss
+        accuracy = compute_accuracy(y_true, y_pred)  # Compute the loss
+
+    # Compute gradients using the tape
+    gradients = tape.gradient(loss, [w, b])
+
+    # Apply gradients to update variables
+    optimizer.apply_gradients(zip(gradients, [w, b]))
+    if epoch % 20 == 0:  # Print every 20 epochs
+            loss_values.append(loss.numpy())
+            accuracy_values.append(accuracy.numpy())
+            print(f"Epoch {epoch}, Loss: {loss.numpy()}, Accuracy: {accuracy.numpy()}")
+```
+## 7. Training Neural Networks
+Training neural networks in TensorFlow is framed as an optimization problem in which the model learns by minimizing a loss function that quantifies the mismatch between predicted outputs and true labels. In supervised learning, the loss function serves as a numerical measure of error—such as cross-entropy for classification—providing a clear objective that the model seeks to reduce. TensorFlow expresses this objective directly in the computation graph, alongside the model’s forward computations. To actually improve the model parameters, the framework relies on gradient-based optimization, most commonly gradient descent. TensorFlow automatically computes gradients of the loss with respect to model parameters using automatic differentiation, freeing users from manual derivative calculations. An optimizer, such as gradient descent, then iteratively updates the parameters in the direction that reduces the loss, with a learning rate controlling the size of each update. This tight integration of loss functions, automatic differentiation, and optimizers is presented as a central design principle that makes TensorFlow both powerful and flexible for training neural networks efficiently. Considering the neural network training progress depicted below, one may conclude that accuracy depends on the choice of loss function and gradient-descent optimizer, as well as on the supervised train/test scheme. This trade-off is what makes an architecture sufficiently good to solve a problem; however, it can never be perfectly precise, since an accuracy of 1.0 is not achievable on model validation.
+<p align="center">
+        <img src="images/NN_training.png" alt="NN Training Progress"/>
+</p>
+
+### What is a Loss Function ?
+It a good measure with which we can evaluate the model’s performance.To capture the discrepancy between our model’s predictions and the observed targets, we need a measure reflecting “distance.” This distance is often referred to as an objective or a loss function, and we optimize the model by finding the set of parameters (weights and bias in this case) that minimize it.
+
+Perhaps the most commonly used loss is the MSE (mean squared error), where for all
+samples we average the squared distances between the real target and what our model
+predicts across samples:
+
+$L(y, \hat{y}) = \frac {1}{n} \sum^{n}_{i=1}\left( y_i - \hat{y}_i\right)^2$
+
+Which turns in Python to:
+```python
+loss = tf.reduce_mean(tf.square(y_true-y_pred))
+```
+
+Another very common loss, especially for categorical data, is the cross entropy, which
+we used in the softmax classifier in the previous chapter. The cross entropy is given
+by
+
+$H(p,q) = - \sum_x p(x)\log{q(x)}$
+
+and for classification with a single correct label (as is the case in an overwhelming
+majority of the cases) reduces to the negative log of the probability placed by the classifier on the correct label.
+
+Which turns in Python to:
+```python
+loss = tf.nn.sigmoid_cross_entropy_with_logits(labels=y_true,logits=y_pred)
+loss = tf.reduce_mean(loss)
+```
+
+Cross entropy is a measure of similarity between two distributions. Since the classifi‐
+cation models used in deep learning typically output probabilities for each class, we
+can compare the true class (distribution $p$) with the probabilities of each class given
+by the model (distribution $q$). The more similar the two distributions, the smaller our
+cross entropy will be.
+
+### 🔎 How to Choose the Best Loss Function?
+The best loss function depends on **your problem type** and **the output of your model**. Here's a breakdown:
+
+#### 📌 1. What Type of Problem Are You Solving?
+
+*(A) Classification (Predicting Categories or Probabilities)*
+
+| Problem Type | Model Output | Best Loss Function |
+|-------------|-------------|--------------------|
+| **Binary Classification** (e.g., spam/not spam) | Probability (0 to 1) | `binary_crossentropy` |
+| **Multi-Class Classification** (e.g., dog/cat/rabbit) | Probabilities for each class | `categorical_crossentropy` |
+| **Multi-Class (One Label at a Time)** | Logits (Raw Scores) | `sparse_categorical_crossentropy` |
+
+💡 **Example:** If you're predicting a probability (like in your sigmoid model), use **Binary Cross-Entropy (`binary_crossentropy`)**.
+
+---
+
+*(B) Regression (Predicting Continuous Numbers)*
+
+| Problem Type | Model Output | Best Loss Function |
+|-------------|-------------|--------------------|
+| **Predicting Any Real Number** | Continuous Value | `mean_squared_error (MSE)` |
+| **Predicting Close to Zero Differences** | Continuous Value | `mean_absolute_error (MAE)` |
+| **Handling Outliers Well** | Continuous Value | `huber_loss` or `log_cosh` |
+
+💡 **Example:** If you are predicting a number (not a probability), use **MSE for smooth errors** or **MAE for robust errors**.
+
+---
+
+#### 📌 2. Does Your Model Output Logits or Probabilities?
+
+- **If using `softmax()` or `sigmoid()`, use BCE or Categorical Cross-Entropy.**
+- **If using raw logits, use `sigmoid_cross_entropy_with_logits()` or `categorical_crossentropy(from_logits=True)`.**
+
+---
+
+#### 🔴 🚨 Common Mistake:
+If you use `sigmoid()` **inside** your model and then apply `sigmoid_cross_entropy_with_logits()`, you **double apply sigmoid** and mess up learning. Instead:
+
+✅ **Use `binary_crossentropy()` for probabilities.**  
+✅ **Use `sigmoid_cross_entropy_with_logits()` only for raw logits.**
+
+### Gradient Descent Optimizer: how to train neural networks?
+While in some cases it is possible to find the global minimum analytically (when it exists), in
+the great majority of cases we will have to use an optimization algorithm. Optimizers
+update the set of weights iteratively in a way that decreases the loss over time.
+
+*Lemma:*
+
+So if $\hat{w}_1 = \hat{w}_0-\gamma \nabla F(\hat{w}_0)$ where $\nabla F(\hat{w}_0)$ is the gradient of $F$ evaluated at $\hat{w}_0$, then for a
+small enough $\gamma$:
+
+$F(\hat{w}_0) \geq F(\hat{w}_1)$
+
+While convergence to the global minimum is guaranteed for convex functions, for nonconvex problems
+(which are essentially all problems in the world of deep learning) they can get stuck
+in local minima. In practice, this is often good enough, as is evidenced by the huge
+success of the field of deep learning.
+
+A more popular technique is the *stochastic gradient descent (SGD)*, where instead of
+feeding the entire dataset to the algorithm for the computation of each step, a subset
+of the data is sampled sequentially. The number of samples ranges from one sample at
+a time to a few hundred, but the most common sizes are between around 50 to
+around 500 (usually referred to as mini-batches).
+
+Using smaller batches usually works faster, and the smaller the size of the batch, the
+faster are the calculations. However, there is a trade-off in that small samples lead to
+lower hardware utilization and tend to have high variance, causing large fluctuations
+to the objective function. Nevertheless, it turns out that some fluctuations are benefi‐
+cial since they enable the set of parameters to jump to new and potentially better local
+minima. Using a relatively smaller batch size is therefore effective in that regard, and
+is currently overall the preferred approach.
+
+An important parameter to set is the algorithm’s learning rate, determining how
+aggressive each update iteration will be (or in other words, how large the step will be
+in the direction of the negative gradient). We want the decrease in the loss to be fast
+enough on the one hand, but on the other hand not large enough so that we over-
+shoot the target and end up at a point with a higher value of the loss function.
+
+# Chapter 5: Integrating AI into Edge Devices
+
+## 5.1. Overview of Embedded AI
 
 Embedded AI refers to the integration of artificial intelligence capabilities into devices or systems, often known as edge applications. This enables tasks involving machine learning to be performed locally, without the need for external computational resources such as cloud services.
 
@@ -1905,7 +2497,7 @@ In this chapter, we will introduce the fundamental concepts of edge AI using mic
 
 To better understand embedded AI and the usage of `STM32CubeIDE` for this application, which, as mentioned earlier, can be somewhat complex for new users, we will implement a very simple neural network (NN) model that has been previously developed. Therefore, we will not delve into the concepts of developing your own NN and will mainly focus on the software usage. However, the model used, developed in `Google Colab`, is present in the following path:
 
-📁 [`chapter-4/tflite_sinewave_training.ipynb`](chapter-4/tflite_sinewave_training.ipynb)
+📁 [`chapter-5/tflite_sinewave_training.ipynb`](chapter-5/tflite_sinewave_training.ipynb)
 
 The developed model is capable of approximating the sine value of a given number using a cloud of random points without using trigonometric operations. As we will see at the end of this tutorial, the obtained value will not be exact, as this method is inefficient for determining the sine of a number. However, it will be very useful for you to easily understand the implementation of AI in microcontrollers.
 
@@ -1941,7 +2533,7 @@ So, we need to follow these steps to have our model in `.tflite` format:
 
 The same file is also available at:
 
-📁 [`chapter-4/sine_model.tflite`](chapter-4/sine_model.tflite)
+📁 [`chapter-5/sine_model.tflite`](chapter-5/sine_model.tflite)
 
 ## 3. Installing the X-Cube-AI Package
 
@@ -2060,7 +2652,7 @@ By following these steps, you should have your project correctly set up with all
 
 After configuring the project and generating the code, we move on to developing our programming logic. The complete code is available in the provided folder, but don't just copy and paste it completely, because the generated code can change based on the microprocessor, your project configuration, or even the IDE and package versions used. Therefore, only copy and paste within the safe zones mentioned earlier.
 
-📁 [`chapter-4/B-U585I-IOT02A-sine-model/Core/Src/main.c`](chapter-4/B-U585I-IOT02A-sine-model/Core/Src/main.c)
+📁 [`chapter-5/B-U585I-IOT02A-sine-model/Core/Src/main.c`](chapter-5/B-U585I-IOT02A-sine-model/Core/Src/main.c)
 
 **Including Libraries:**
 
@@ -2346,7 +2938,7 @@ Follow these steps:
     /* USER CODE END 0 */
     ```
 
-8. Next, go to the [`X-CUBE-AI/App/app_x-cube-ai.c`](chapter-4/sine-model-performance/X-CUBE-AI/App/app_x-cube-ai.c) file and replace the entire `ai_mnetwork_run` function with the updated version shown below:
+8. Next, go to the [`X-CUBE-AI/App/app_x-cube-ai.c`](chapter-5/sine-model-performance/X-CUBE-AI/App/app_x-cube-ai.c) file and replace the entire `ai_mnetwork_run` function with the updated version shown below:
 
     - Original:
 
@@ -2415,7 +3007,7 @@ Follow these steps:
 
 The main measurements to observe are inference time and energy consumption by the model. In this tutorial, the model consumes 8.71 mA, with the same inference time as previously measured, 28 ms. As this is a very simple model, the consumption may not seem significant, but for more complex models, this consumption could be much higher, potentially causing issues depending on your application.
 
-📁 [`chapter-4/sine-model-performance`](chapter-4/sine-model-performance)
+📁 [`chapter-5/sine-model-performance`](chapter-5/sine-model-performance)
 
 # Glossary
 
@@ -2478,4 +3070,5 @@ The main measurements to observe are inference time and energy consumption by th
 [19] [TinyML: Getting Started with STM32 X-CUBE-AI](https://www.digikey.fr/en/maker/projects/tinyml-getting-started-with-stm32-x-cube-ai/f94e1c8bfc1e4b6291d0f672d780d2c0)  
 [20] [TensorFlow Lite Official Website](https://www.tensorflow.org/lite)  
 [21] [X-CUBE-AI Package](https://www.st.com/en/embedded-software/x-cube-ai.html#get-software)  
-[22] [How to measure machine learning model power consumption with STM32Cube.AI generated application](https://wiki.st.com/stm32mcu/index.php?title=AI:How_to_measure_machine_learning_model_power_consumption_with_STM32Cube.AI_generated_application&direction=prev&oldid=24537#)
+[22] [How to measure machine learning model power consumption with STM32Cube.AI generated application](https://wiki.st.com/stm32mcu/index.php?title=AI:How_to_measure_machine_learning_model_power_consumption_with_STM32Cube.AI_generated_application&direction=prev&oldid=24537#)  
+[23] [Hope, T., Resheff, Y. S., & Lieder, I. (2017). Learning TensorFlow: A Guide to Building Deep Learning Systems. In Deep Learning With Tensorflow.](https://www.oreilly.com/library/view/learning-tensorflow/9781491978504/)
